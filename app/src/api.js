@@ -28,6 +28,10 @@ export const fetchSpot = (id) => request(`/spots/${id}`, { device: true })
 
 export const fetchDsas = () => request('/dsas')
 
+// Real walking route (OneMap): { minutes, metres, path: [[lat, lng], ...] }
+export const fetchRoute = (from, to) =>
+  request('/route', { params: { from: `${from.lat},${from.lng}`, to: `${to.lat},${to.lng}` } })
+
 // Once a day per device: "the app was opened" (no location).
 export const ping = () => request('/ping', { method: 'POST', device: true })
 

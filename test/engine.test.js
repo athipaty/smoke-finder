@@ -6,6 +6,7 @@ import { buildingRuleFor } from '../src/rules.js'
 import { elementToZone, stitchRings } from '../src/osm.js'
 import { findLegalSpots, walkMinutes } from '../src/nearby.js'
 import { CHANGI_AREAS, terminalFor } from '../src/changi.js'
+import { decodePolyline } from '../src/polyline.js'
 
 // Everything is laid out in metres around an origin in Tampines, then
 // converted back to lat/lng for the checker.
@@ -23,7 +24,7 @@ const data = {
     zone({ rule: 'park', kind: 'poly', rings: [square(2000, 0, 200)], name: 'Tampines Eco Green', osm: 'way/2' }),
     zone({ rule: 'building', kind: 'poly', rings: [square(3000, 0, 40)], name: 'Blk 123', osm: 'way/3' }),
     zone({ rule: 'covered_walkway', kind: 'line', path: [OX + 4000, OY, OX + 4100, OY], name: null, osm: 'way/4' }),
-    zone({ rule: 'orchard_nsz', kind: 'poly', rings: [square(5000, 0, 500)], name: 'NSZ', osm: null }),
+    zone({ rule: 'orchard_nsz', kind: 'poly', rings: [square(5000, 0, 500)], name: 'NSZ', osm: null, nearM: 150 }), // estimated boundary
     zone({ rule: 'carpark_building', kind: 'poly', rings: [square(6000, 0, 50)], name: null, osm: 'way/6' }),
     zone({ rule: 'road', kind: 'line', path: [OX + 7000, OY - 500, OX + 7000, OY + 500], bufferM: 10, name: 'Test Ave', osm: 'way/7' }),
   ],
@@ -154,6 +155,22 @@ test('Changi: 32 areas across T1-T4; terminal found from the check or by distanc
   assert.equal(terminalFor({ lat: 1.3540, lng: 103.9890, reasons: [{ rule: 'building', osm: 'way/173010413' }] }), 'T3')
   assert.equal(terminalFor({ lat: 1.3388, lng: 103.9843 }), 'T4')
   assert.equal(terminalFor({ lat: 1.3138, lng: 103.8159 }), null) // Botanic Gardens
+})
+
+test("decodePolyline reads OneMap's documented sample", () => {
+  assert.deepEqual(decodePolyline('{u`GktxxR?G'), [
+    [1.3195, 103.84214],
+    [1.3195, 103.84218],
+  ])
+})
+
+test('a zone can carry its own near band (estimated boundary) over the rule default', () => {
+  const wide = zone({ rule: 'orchard_nsz', kind: 'poly', rings: [square(8000, 0, 100)], nearM: 150 })
+  const exact = zone({ rule: 'orchard_nsz', kind: 'poly', rings: [square(9000, 0, 100)] })
+  const c = createChecker({ zones: [wide, exact], dsas: [] })
+  assert.equal(c(at(8100 + 100, 50)).verdict, 'amber') // 100 m outside the estimate
+  assert.equal(c(at(9100 + 100, 50)).verdict, 'green') // 100 m outside the official line
+  assert.equal(c(at(9100 + 5, 50)).verdict, 'amber') // still cautious right at the edge
 })
 
 test('landed homes are skipped; HDB blocks, roofs and carparks are classified', () => {

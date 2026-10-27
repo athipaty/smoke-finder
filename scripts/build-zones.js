@@ -85,12 +85,27 @@ const dsas = dsaRaw.features.map((f) => {
   }
 })
 
-// Orchard Road No Smoking Zone, approximated from the DSAs (they only exist inside it).
-// TODO: replace with the official boundary traced from NEA's OneMap layer.
-const hull = inflateRing(convexHull(dsas.map((d) => [d.x, d.y])), NSZ_MARGIN_M)
-const nsz = { rule: 'orchard_nsz', osm: null, name: 'Orchard Road No Smoking Zone (approximate)', kind: 'poly', rings: [hull] }
-nsz.bbox = bboxOf(nsz)
-add(nsz)
+// Orchard Road No Smoking Zone: NEA's official boundary (data/orchard-nsz.json,
+// written by scripts/fetch-nsz.js and committed), or else an estimate from the
+// DSAs, which only exist inside it. The estimate gets a wide amber band.
+const nszFile = join(DATA, 'orchard-nsz.json')
+let nszSource
+try {
+  const official = JSON.parse(await readFile(nszFile, 'utf8'))
+  const rings = official.polygons.map((poly) => poly.flatMap(([lat, lng]) => project(lat, lng)))
+  const nsz = { rule: 'orchard_nsz', osm: null, name: 'Orchard Road No Smoking Zone', kind: 'poly', rings }
+  nsz.bbox = bboxOf(nsz)
+  add(nsz)
+  nszSource = `official (${official.theme}, fetched ${official.fetchedAt.slice(0, 10)}, ${rings.length} polygon(s))`
+} catch (err) {
+  if (err.code !== 'ENOENT') throw err
+  const hull = inflateRing(convexHull(dsas.map((d) => [d.x, d.y])), NSZ_MARGIN_M)
+  const nsz = { rule: 'orchard_nsz', osm: null, name: 'Orchard Road No Smoking Zone (estimated)', kind: 'poly', rings: [hull], nearM: 150 }
+  nsz.bbox = bboxOf(nsz)
+  add(nsz)
+  nszSource = 'estimated from the DSAs (data/orchard-nsz.json not found)'
+}
+console.log(`Orchard NSZ boundary: ${nszSource}`)
 
 const out = {
   version: 1,

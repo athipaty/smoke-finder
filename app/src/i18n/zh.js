@@ -193,7 +193,7 @@ export default {
   'rule.carpark_building.label': '多层停车场',
   'rule.carpark_building.reason': '多层和地下停车场内禁止吸烟，只有无遮盖的顶层允许。',
   'rule.orchard_nsz.label': '乌节路禁烟区',
-  'rule.orchard_nsz.reason': '在乌节路禁烟区内，只可在指定吸烟区吸烟。边界为大致范围。',
+  'rule.orchard_nsz.reason': '在乌节路禁烟区内，只可在指定吸烟区吸烟。',
 
   'notify.title': "吸烟规定有变",
   'notify.red': "{label}：现在不准吸烟（{place}）。",
@@ -225,4 +225,7 @@ export default {
   'detail.notFound': "找不到这个地点，可能已被移除。",
   'detail.seeNearby': "查看您附近的地点",
   'rules.privacy': "为了改进应用，我们会用您手机上的一个随机编号统计使用次数。此统计不收集位置或个人资料。",
+
+  'common.approxMin': "约 {n} 分钟",
+  'detail.walkRoute': "步行 {n} 分钟 · {d}",
 }

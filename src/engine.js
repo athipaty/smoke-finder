@@ -51,7 +51,8 @@ function judge(zone, rule, d, nearM) {
   const buffer = bufferOf(zone, rule)
   if (d === 0 || (zone.kind === 'line' && d <= buffer)) return { verdict: rule.inside, how: 'inside' }
   if (d <= buffer) return { verdict: rule.bufferVerdict ?? rule.inside, how: 'buffer' }
-  const near = rule.nearM ?? nearM
+  // A zone can carry its own near band (e.g. an estimated boundary needs a wide one).
+  const near = zone.nearM ?? rule.nearM ?? nearM
   if (near > 0 && rule.inside === 'red' && d <= buffer + near) return { verdict: 'amber', how: 'near' }
   return null
 }

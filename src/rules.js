@@ -162,12 +162,13 @@ export const RULES = [
     query: ['way["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street)(_link)?$"]'],
   },
 
-  // Built from the NEA designated smoking areas; NEA does not publish the boundary as open data.
+  // Official boundary from NEA's OneMap theme (data/orchard-nsz.json); falls back
+  // to an estimate from the DSAs if that file is missing.
   {
     id: 'orchard_nsz',
     label: 'Orchard Road No Smoking Zone',
-    reason: 'In the Orchard Road No Smoking Zone, smoking is only allowed at designated smoking areas. Boundary is approximate.',
-    inside: 'red', bufferM: 0, nearM: 150,
+    reason: 'In the Orchard Road No Smoking Zone, smoking is only allowed at designated smoking areas.',
+    inside: 'red', bufferM: 0, // an estimated boundary sets its own wide nearM (build-zones.js)
   },
 ]
 

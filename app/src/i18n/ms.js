@@ -193,7 +193,7 @@ export default {
   'rule.carpark_building.label': 'Tempat letak kereta bertingkat',
   'rule.carpark_building.reason': 'Merokok dilarang di dalam tempat letak kereta bertingkat dan bawah tanah. Hanya tingkat atas yang tidak berbumbung dibenarkan.',
   'rule.orchard_nsz.label': 'Zon Larangan Merokok Orchard Road',
-  'rule.orchard_nsz.reason': 'Di Zon Larangan Merokok Orchard Road, merokok hanya dibenarkan di kawasan merokok yang ditetapkan. Sempadan adalah anggaran.',
+  'rule.orchard_nsz.reason': 'Di Zon Larangan Merokok Orchard Road, merokok hanya dibenarkan di kawasan merokok yang ditetapkan.',
 
   'notify.title': "Peraturan merokok berubah",
   'notify.red': "{label}: kini tidak dibenarkan ({place}).",
@@ -225,4 +225,7 @@ export default {
   'detail.notFound': "Tempat ini tidak ditemui. Ia mungkin telah dibuang.",
   'detail.seeNearby': "Lihat tempat berdekatan",
   'rules.privacy': "Untuk menambah baik aplikasi, kami mengira kekerapan ia digunakan dengan ID rawak pada telefon anda. Tiada lokasi atau butiran peribadi dikumpul untuk ini.",
+
+  'common.approxMin': "~{n} min",
+  'detail.walkRoute': "{n} min berjalan kaki · {d}",
 }

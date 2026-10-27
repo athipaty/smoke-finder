@@ -186,4 +186,7 @@ export default {
   'detail.notFound': "This spot couldn't be found. It may have been removed.",
   'detail.seeNearby': "See spots near you",
   'rules.privacy': "To improve the app we count how often it is used, using a random ID on your phone. No location or personal details are collected for this.",
+
+  'common.approxMin': "~{n} min",
+  'detail.walkRoute': "{n} min walk · {d}",
 }

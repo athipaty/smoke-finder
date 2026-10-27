@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { CircleMarker } from 'react-leaflet'
-import { fetchDsas, fetchSpot, voteSpot } from '../api.js'
+import { CircleMarker, Polyline } from 'react-leaflet'
+import { fetchDsas, fetchRoute, fetchSpot, voteSpot } from '../api.js'
 import { directionsUrl, distanceText, featureText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
 import { useGeo } from '../geo.jsx'
 import { useI18n } from '../i18n/index.jsx'
@@ -114,6 +114,24 @@ export default function SpotDetail() {
   const [removed, setRemoved] = useState(false)
   const [link, setLink] = useState({ status: state?.spot ? 'done' : 'loading' })
   const [copied, setCopied] = useState(false)
+  const [route, setRoute] = useState(null)
+
+  // Real walking route from where the user is, when we know that.
+  const fromPoint = state?.from ?? geo.coords
+  const fromKey = fromPoint ? `${fromPoint.lat.toFixed(5)},${fromPoint.lng.toFixed(5)}` : null
+  const spotKey = spot ? `${spot.lat},${spot.lng}` : null
+  useEffect(() => {
+    if (!fromKey || !spotKey) return
+    let cancelled = false
+    const [fLat, fLng] = fromKey.split(',').map(Number)
+    const [sLat, sLng] = spotKey.split(',').map(Number)
+    fetchRoute({ lat: fLat, lng: fLng }, { lat: sLat, lng: sLng })
+      .then((r) => !cancelled && setRoute(r))
+      .catch(() => !cancelled && setRoute(null)) // keep the straight-line estimate
+    return () => {
+      cancelled = true
+    }
+  }, [fromKey, spotKey])
 
   // Opened from a shared link: load the spot it points to.
   useEffect(() => {
@@ -180,7 +198,15 @@ export default function SpotDetail() {
   return (
     <main className="flex flex-1 flex-col">
       <div className="relative">
-        <SgMap center={spot} fit={from ? [spot, from] : [spot]} zoomControl={false} className="h-56 w-full">
+        <SgMap
+          center={spot}
+          fit={[spot, ...(from ? [from] : []), ...(route?.path ?? []).map(([lat, lng]) => ({ lat, lng }))]}
+          zoomControl={false}
+          className="h-56 w-full"
+        >
+          {route?.path?.length > 1 && (
+            <Polyline positions={route.path} pathOptions={{ color: COLOURS.you, weight: 4, opacity: 0.8, dashArray: '2 8', lineCap: 'round' }} />
+          )}
           {from && <CircleMarker center={[from.lat, from.lng]} radius={7} pathOptions={{ color: '#fff', weight: 3, fillColor: COLOURS.you, fillOpacity: 1 }} />}
           <CircleMarker center={[spot.lat, spot.lng]} radius={11} pathOptions={{ color: '#fff', weight: 2, fillColor: colour, fillOpacity: 1 }} />
         </SgMap>
@@ -222,7 +248,11 @@ export default function SpotDetail() {
         )}
         {spot.kind === 'dsa' && spot.description && <p className="text-stone-600 dark:text-stone-300">{spot.description}</p>}
         {features && <p className="text-stone-600 first-letter:uppercase dark:text-stone-300">{features}</p>}
-        {distanceM != null && <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walk', { n: walkMin, d: distanceText(distanceM) })}</p>}
+        {route ? (
+          <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walkRoute', { n: route.minutes, d: distanceText(route.metres) })}</p>
+        ) : (
+          distanceM != null && <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walk', { n: walkMin, d: distanceText(distanceM) })}</p>
+        )}
         {spot.kind === 'community' && !removed && spot.lastConfirmedAt && (
           <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{statusText(spot, t)}</p>
         )}

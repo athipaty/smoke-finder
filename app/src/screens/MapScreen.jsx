@@ -149,7 +149,7 @@ export default function MapScreen() {
                     </span>
                     <span className="min-w-0 flex-1 truncate font-medium">{spotTitle(f, t)}</span>
                     <span className="shrink-0 text-sm text-stone-500 dark:text-stone-400">
-                      {t('common.min', { n: f.walkMin })} · {distanceText(f.distanceM)}
+                      {t('common.approxMin', { n: f.walkMin })} · {distanceText(f.distanceM)}
                     </span>
                   </button>
                 </li>
@@ -209,7 +209,7 @@ export default function MapScreen() {
                     <span className="block truncate text-sm text-stone-500 dark:text-stone-400">{subtitle(s, t)}</span>
                   </span>
                   <span className="shrink-0 text-right text-sm">
-                    <span className="block font-medium">{t('common.min', { n: s.walkMin })}</span>
+                    <span className="block font-medium">{t('common.approxMin', { n: s.walkMin })}</span>
                     <span className="block text-stone-500 dark:text-stone-400">{distanceText(s.distanceM)}</span>
                   </span>
                 </button>
