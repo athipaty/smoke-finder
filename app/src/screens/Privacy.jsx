@@ -41,7 +41,7 @@ const SECTIONS = [
   {
     title: '"I’m here now"',
     body: [
-      'If you tap "I’m here now" on a spot, we store which spot, the time and the hashed ID, so others can see how many people were there in the last hour. You can be checked in at one spot at a time; it is deleted automatically after 90 minutes, or when you tap "I’ve left". Your own position is not sent or stored for this.',
+      'If you tap "I’m here now" on a spot, we store which spot, the time and the hashed ID, so others can see how many people were there in the last hour. You can be checked in at one spot at a time; it is deleted automatically after 90 minutes, or when you tap "I’ve left". At a spot added by app users, it also counts as your "Still here" vote. Your own position is not sent or stored for this.',
     ],
   },
   {

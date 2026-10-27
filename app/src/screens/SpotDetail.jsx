@@ -103,8 +103,9 @@ function CommunityActions({ spot, onChange }) {
 }
 
 // "Busy now": how many people said "I'm here now" in the last hour, and a
-// button to say it yourself.
-function BusyNow({ spotKey }) {
+// button to say it yourself. onCheckIn runs after a check-in (at a community
+// spot it also counts as "Still here", so the votes change).
+function BusyNow({ spotKey, onCheckIn }) {
   const { t } = useI18n()
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -128,6 +129,7 @@ function BusyNow({ spotKey }) {
     setMessage(null)
     try {
       setStatus(await (here ? checkins.checkIn(spotKey) : checkins.leave()))
+      if (here) onCheckIn?.()
       setMessage(here ? t('busy.thanks') : null)
     } catch (err) {
       setMessage(err.message)
@@ -323,7 +325,17 @@ export default function SpotDetail() {
 
         <p className="mt-4 text-sm text-stone-600 dark:text-stone-300">{t(`kind.${spot.kind}.note`)}</p>
 
-        {checkinKey(spot) && !removed && <BusyNow key={checkinKey(spot)} spotKey={checkinKey(spot)} />}
+        {checkinKey(spot) && !removed && (
+          <BusyNow
+            key={checkinKey(spot)}
+            spotKey={checkinKey(spot)}
+            onCheckIn={
+              spot.kind === 'community'
+                ? () => fetchSpot(spot.id).then((fresh) => setSpot((s) => ({ ...s, ...fresh })), () => {})
+                : undefined
+            }
+          />
+        )}
 
         {spot.kind === 'community' && !removed && <CommunityActions spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />}
 
