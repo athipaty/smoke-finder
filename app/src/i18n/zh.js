@@ -267,4 +267,11 @@ export default {
   'install.iosAfter': "，然后选择“添加到主屏幕”。",
   'shareApp.button': "分享给朋友",
   'shareApp.text': "查看您在新加坡所在的地方能不能吸烟，并找到最近的合法吸烟点。",
+  'busy.title': "现在的人数",
+  'busy.short': "现在 {n} 人",
+  'busy.count': "过去一小时在这里的人数：{n}",
+  'busy.none': "过去一小时没有人在这里签到。",
+  'busy.checkIn': "我现在在这里",
+  'busy.leave': "我已离开",
+  'busy.thanks': "谢谢。其他人在 1 小时内会看到你在这里。",
 }

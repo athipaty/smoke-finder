@@ -228,4 +228,11 @@ export default {
   'install.iosAfter': ", then “Add to Home Screen”.",
   'shareApp.button': "Share this app with a friend",
   'shareApp.text': "Check if you can smoke where you are in Singapore, and find the nearest legal spot.",
+  'busy.title': "Here now",
+  'busy.short': "{n} here now",
+  'busy.count': "People here in the last hour: {n}",
+  'busy.none': "No one has checked in here in the last hour.",
+  'busy.checkIn': "I'm here now",
+  'busy.leave': "I've left",
+  'busy.thanks': "Thanks. Others will see you here for 1 hour.",
 }

@@ -22,8 +22,9 @@ function communityStatus(s, t) {
 
 function subtitle(s, t) {
   if (s.kind === 'open') return t('spot.openSubtitle')
-  if (s.kind === 'dsa') return [t('spot.neaArea'), s.description].filter(Boolean).join(' · ')
-  return [communityStatus(s, t), featureText(s, t)].filter(Boolean).join(' · ')
+  const busy = s.busyNow > 0 ? t('busy.short', { n: s.busyNow }) : null
+  if (s.kind === 'dsa') return [busy, t('spot.neaArea'), s.description].filter(Boolean).join(' · ')
+  return [busy, communityStatus(s, t), featureText(s, t)].filter(Boolean).join(' · ')
 }
 
 // All three kinds in one list, nearest first. Open areas are by definition
@@ -45,9 +46,10 @@ function savedNearby(you) {
     const { at, nearby } = JSON.parse(load(KEYS.lastNearby))
     if (Date.now() - at > MAX_SAVED_DAYS * 86_400_000) return null
     // Distances were from where the user was then; work them out again.
+    // Who was there then says nothing about now, so drop the busy counts.
     const fromYou = (s) => {
       const distanceM = Math.round(metresBetween(you, s))
-      return { ...s, distanceM, walkMin: walkMinutes(distanceM) }
+      return { ...s, distanceM, walkMin: walkMinutes(distanceM), busyNow: 0 }
     }
     return {
       at,

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleMarker, Polyline } from 'react-leaflet'
-import { fetchDsas, fetchRoute, fetchSpot, voteSpot } from '../api.js'
-import { directionsUrl, distanceText, featureText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
+import { checkins, fetchDsas, fetchRoute, fetchSpot, voteSpot } from '../api.js'
+import { checkinKey, directionsUrl, distanceText, featureText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
 import { useGeo } from '../geo.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import SgMap from '../components/SgMap.jsx'
@@ -97,6 +97,66 @@ function CommunityActions({ spot, onChange }) {
         >
           {t('vote.reportPhoto')}
         </button>
+      )}
+    </div>
+  )
+}
+
+// "Busy now": how many people said "I'm here now" in the last hour, and a
+// button to say it yourself.
+function BusyNow({ spotKey }) {
+  const { t } = useI18n()
+  const [status, setStatus] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    checkins
+      .status(spotKey)
+      .then((s) => !cancelled && setStatus(s))
+      .catch(() => {}) // not essential: leave the section out
+    return () => {
+      cancelled = true
+    }
+  }, [spotKey])
+
+  if (!status) return null
+
+  const act = async (here) => {
+    setBusy(true)
+    setMessage(null)
+    try {
+      setStatus(await (here ? checkins.checkIn(spotKey) : checkins.leave()))
+      setMessage(here ? t('busy.thanks') : null)
+    } catch (err) {
+      setMessage(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="mt-5">
+      <p className="text-sm font-semibold">{t('busy.title')}</p>
+      <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
+        {status.busyNow > 0 ? t('busy.count', { n: status.busyNow }) : t('busy.none')}
+      </p>
+      <button
+        type="button"
+        disabled={busy}
+        aria-pressed={status.here}
+        onClick={() => act(!status.here)}
+        className={`mt-2 w-full rounded-xl px-3 py-3 text-sm font-medium active:opacity-80 disabled:opacity-60 ${
+          status.here ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
+        }`}
+      >
+        {busy ? '…' : status.here ? t('busy.leave') : t('busy.checkIn')}
+      </button>
+      {message && (
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300" role="status">
+          {message}
+        </p>
       )}
     </div>
   )
@@ -262,6 +322,8 @@ export default function SpotDetail() {
         )}
 
         <p className="mt-4 text-sm text-stone-600 dark:text-stone-300">{t(`kind.${spot.kind}.note`)}</p>
+
+        {checkinKey(spot) && !removed && <BusyNow key={checkinKey(spot)} spotKey={checkinKey(spot)} />}
 
         {spot.kind === 'community' && !removed && <CommunityActions spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />}
 

@@ -38,6 +38,12 @@ const SECTIONS = [
     ],
   },
   {
+    title: '"I’m here now"',
+    body: [
+      'If you tap "I’m here now" on a spot, we store which spot, the time and the hashed ID, so others can see how many people were there in the last hour. You can be checked in at one spot at a time; it is deleted automatically after 90 minutes, or when you tap "I’ve left". Your own position is not sent or stored for this.',
+    ],
+  },
+  {
     title: 'Problem reports',
     body: [
       'Reports you send are read by our moderators and deleted automatically after 180 days. When a report arrives, or a spot is added, moderators get a phone notification through ntfy.sh with the type of report and the start of its text (never a location).',

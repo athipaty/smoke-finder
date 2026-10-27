@@ -111,6 +111,14 @@ export const admin = {
   },
 }
 
+// "Busy now". key: 'c:<community id>' or 'nea:<NEA id>' (see checkinKey in format.js)
+export const checkins = {
+  status: (key) => request('/checkins', { params: { spot: key }, device: true }),
+  checkIn: (key) =>
+    request('/checkins', { method: 'POST', device: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ spot: key }) }),
+  leave: () => request('/checkins', { method: 'DELETE', device: true }),
+}
+
 // F6. type: 'here' | 'gone' | 'not_allowed' | 'bad_photo'
 export const voteSpot = (id, type) =>
   request(`/spots/${id}/vote`, {

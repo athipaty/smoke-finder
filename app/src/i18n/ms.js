@@ -267,4 +267,11 @@ export default {
   'install.iosAfter': ", kemudian “Tambah ke Skrin Utama”.",
   'shareApp.button': "Kongsi aplikasi ini dengan kawan",
   'shareApp.text': "Semak sama ada anda boleh merokok di tempat anda di Singapura, dan cari tempat sah yang terdekat.",
+  'busy.title': "Orang di sini sekarang",
+  'busy.short': "{n} orang di sini",
+  'busy.count': "Orang di sini dalam sejam lalu: {n}",
+  'busy.none': "Tiada sesiapa mendaftar masuk di sini dalam sejam lalu.",
+  'busy.checkIn': "Saya di sini sekarang",
+  'busy.leave': "Saya sudah pergi",
+  'busy.thanks': "Terima kasih. Orang lain akan nampak anda di sini selama 1 jam.",
 }

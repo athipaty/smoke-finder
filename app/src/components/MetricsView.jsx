@@ -123,6 +123,7 @@ export default function MetricsView() {
                 <th className="font-medium">Checks</th>
                 <th className="font-medium">Nearby</th>
                 <th className="font-medium">Added</th>
+                <th className="font-medium">Here now</th>
                 <th className="font-medium">Reports</th>
               </tr>
             </thead>
@@ -135,6 +136,7 @@ export default function MetricsView() {
                   <td>{d.checks}</td>
                   <td>{d.nearby}</td>
                   <td>{d.adds}</td>
+                  <td>{d.checkins ?? 0}</td>
                   <td>{d.reports}</td>
                 </tr>
               ))}

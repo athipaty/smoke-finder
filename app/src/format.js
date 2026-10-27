@@ -38,3 +38,10 @@ export const featureText = (s, t) =>
 
 export const directionsUrl =({ lat, lng }) =>
   `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`
+
+// Which spot a "busy now" check-in is for; open areas have none.
+export function checkinKey(spot) {
+  if (spot.kind === 'community') return `c:${spot.id}`
+  if (spot.kind === 'dsa') return `nea:${spot.neaId}`
+  return null
+}
