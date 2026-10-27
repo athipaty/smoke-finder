@@ -17,11 +17,13 @@ const HEADLINES = {
 
 const cellKey = (cx, cy) => `${cx},${cy}`
 
+// A zone can carry its own buffer (e.g. a road's width); otherwise the rule's applies.
+const bufferOf = (zone, rule) => zone.bufferM ?? rule?.bufferM ?? 0
+
 function buildIndex(zones) {
   const grid = new Map()
   zones.forEach((zone, i) => {
-    const rule = RULES_BY_ID[zone.rule]
-    const pad = rule?.bufferM ?? 0
+    const pad = bufferOf(zone, RULES_BY_ID[zone.rule])
     const [x0, y0, x1, y1] = zone.bbox
     for (let cx = Math.floor((x0 - pad) / CELL_M); cx <= Math.floor((x1 + pad) / CELL_M); cx++) {
       for (let cy = Math.floor((y0 - pad) / CELL_M); cy <= Math.floor((y1 + pad) / CELL_M); cy++) {
@@ -46,10 +48,11 @@ function candidates(grid, x, y, radius) {
 
 // Verdict for one zone, or null when the point is clear of it.
 function judge(zone, rule, d, nearM) {
-  if (d === 0 || (zone.kind === 'line' && d <= rule.bufferM)) return { verdict: rule.inside, how: 'inside' }
-  if (d <= rule.bufferM) return { verdict: rule.bufferVerdict ?? rule.inside, how: 'buffer' }
+  const buffer = bufferOf(zone, rule)
+  if (d === 0 || (zone.kind === 'line' && d <= buffer)) return { verdict: rule.inside, how: 'inside' }
+  if (d <= buffer) return { verdict: rule.bufferVerdict ?? rule.inside, how: 'buffer' }
   const near = rule.nearM ?? nearM
-  if (near > 0 && rule.inside === 'red' && d <= rule.bufferM + near) return { verdict: 'amber', how: 'near' }
+  if (near > 0 && rule.inside === 'red' && d <= buffer + near) return { verdict: 'amber', how: 'near' }
   return null
 }
 
@@ -73,11 +76,16 @@ export function createChecker(data) {
     }
 
     const byRule = new Map()
+    let onRoad = false
     for (const i of candidates(grid, x, y, MAX_NEAR_M + 10)) {
       const zone = zones[i]
       const rule = RULES_BY_ID[zone.rule]
       if (!rule) continue
       const d = zoneDistance(x, y, zone)
+      if (rule.avoid) {
+        if (d <= bufferOf(zone, rule)) onRoad = true
+        continue
+      }
       const hit = judge(zone, rule, d, nearM)
       if (!hit) continue
       const prev = byRule.get(rule.id)
@@ -112,6 +120,7 @@ export function createChecker(data) {
       summary: summarise(verdict, reasons, dsa, accuracy),
       reasons,
       designatedArea: dsa,
+      onRoad,
       fineNote: verdict === 'green' ? null : FINE_NOTE,
       disclaimer: DISCLAIMER,
       source: NEA_SOURCE,

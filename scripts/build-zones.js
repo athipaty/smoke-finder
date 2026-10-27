@@ -20,7 +20,7 @@ const add = (zone) => {
 
 // OSM rules
 let osmTimestamp = null
-for (const rule of RULES.filter((r) => r.query)) {
+for (const rule of RULES.filter((r) => r.query && !r.tiled)) {
   const raw = await readJson(`osm-${rule.id}.json`)
   osmTimestamp ??= raw.osm3s?.timestamp_osm_base ?? null
   for (const el of raw.elements) {
@@ -29,7 +29,7 @@ for (const rule of RULES.filter((r) => r.query)) {
   }
 }
 
-// Buildings, deduplicated across tiles and clipped to Singapore
+// Tiled layers (buildings, roads): deduplicated across tiles and clipped to Singapore
 const sg = elementToZone((await readJson('osm-sg-boundary.json')).elements[0], { id: 'sg' })
 if (!sg) throw new Error('Could not assemble the Singapore boundary')
 const inSingapore = (zone) => {
@@ -37,22 +37,39 @@ const inSingapore = (zone) => {
   const y = (zone.bbox[1] + zone.bbox[3]) / 2
   return zoneDistance(x, y, sg) === 0
 }
-let outside = 0
-const seen = new Set()
-const tiles = (await readdir(RAW)).filter((f) => f.startsWith('osm-buildings-'))
-for (const file of tiles) {
-  for (const el of (await readJson(file)).elements) {
-    if (seen.has(el.id)) continue
-    seen.add(el.id)
-    const ruleId = buildingRuleFor(el.tags)
-    if (!ruleId) continue
-    const zone = elementToZone(el, { ...RULES_BY_ID[ruleId], geom: 'area' })
-    if (zone?.kind !== 'poly') continue
-    if (inSingapore(zone)) add(zone)
-    else outside++
+const rawFiles = await readdir(RAW)
+
+// `toZone(el)` returns a zone or null; tile files are `osm-<prefix>-<row>-<col>.json`.
+async function addTiled(prefix, toZone) {
+  let outside = 0
+  const seen = new Set()
+  for (const file of rawFiles.filter((f) => new RegExp(`^osm-${prefix}-\\d+-\\d+\\.json$`).test(f))) {
+    for (const el of (await readJson(file)).elements) {
+      if (seen.has(el.id)) continue
+      seen.add(el.id)
+      const zone = toZone(el)
+      if (!zone) continue
+      if (inSingapore(zone)) add(zone)
+      else outside++
+    }
   }
+  console.log(`${prefix}: ${seen.size} downloaded, ${outside} outside Singapore skipped`)
 }
-console.log(`Skipped ${outside} buildings outside Singapore (${sg.rings.length} boundary rings)`)
+
+await addTiled('buildings', (el) => {
+  const ruleId = buildingRuleFor(el.tags)
+  if (!ruleId) return null
+  const zone = elementToZone(el, { ...RULES_BY_ID[ruleId], geom: 'area' })
+  return zone?.kind === 'poly' ? zone : null
+})
+
+for (const rule of RULES.filter((r) => r.tiled)) {
+  await addTiled(rule.id, (el) => {
+    const zone = elementToZone(el, rule)
+    if (zone && rule.bufferFor) zone.bufferM = rule.bufferFor(el.tags)
+    return zone
+  })
+}
 
 // NEA designated smoking areas
 const dsaRaw = await readJson('nea-dsa.geojson')

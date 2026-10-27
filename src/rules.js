@@ -9,6 +9,9 @@
 //   pointRadiusM  size used when OSM only has a point for the place
 //   geom          'line' for walkways; otherwise shapes come from the OSM element
 //   query         Overpass selectors; fetch-data.js appends (area.sg)
+//   avoid         not a ban: never affects the verdict, only flags `onRoad`
+//   tiled         fetched in map tiles (too big for one query) and clipped to Singapore
+//   bufferFor     per-element buffer from its OSM tags, stored on the zone as `bufferM`
 
 export const NEA_SOURCE = 'https://www.nea.gov.sg/our-services/smoking-prohibition/overview'
 export const FINE_NOTE = 'Fines up to $1,000'
@@ -148,6 +151,17 @@ export const RULES = [
     inside: 'amber', bufferM: 0, nearM: 0,
   },
 
+  // Not a no-smoking place: roads never change a verdict. They only keep
+  // suggested open spots off the carriageway (see nearby.js). Fetched by tile.
+  {
+    id: 'road',
+    label: 'Road',
+    reason: 'On or next to a road.',
+    avoid: true, geom: 'line', bufferM: 4, tiled: true,
+    bufferFor: (tags) => ROAD_HALF_WIDTH_M[tags?.highway] ?? 4,
+    query: ['way["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street)(_link)?$"]'],
+  },
+
   // Built from the NEA designated smoking areas; NEA does not publish the boundary as open data.
   {
     id: 'orchard_nsz',
@@ -156,6 +170,13 @@ export const RULES = [
     inside: 'red', bufferM: 0, nearM: 150,
   },
 ]
+
+// Half the carriageway width plus a little kerb, by OSM highway type.
+const ROAD_HALF_WIDTH_M = {
+  motorway: 14, trunk: 12, primary: 10, secondary: 8, tertiary: 6,
+  motorway_link: 6, trunk_link: 6, primary_link: 6, secondary_link: 5, tertiary_link: 5,
+  unclassified: 4, residential: 4, living_street: 3,
+}
 
 export const RULES_BY_ID = Object.fromEntries(RULES.map((r) => [r.id, r]))
 

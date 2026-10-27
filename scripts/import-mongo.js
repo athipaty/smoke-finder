@@ -21,7 +21,7 @@ const data = JSON.parse(await readFile(join(import.meta.dirname, '..', 'data', '
 
 // Bounding box + legal buffer as a lng/lat rectangle; the API finds candidates with it.
 function areaOf(zone) {
-  const pad = RULES_BY_ID[zone.rule]?.bufferM ?? 0
+  const pad = zone.bufferM ?? RULES_BY_ID[zone.rule]?.bufferM ?? 0
   const [x0, y0, x1, y1] = zone.bbox
   const [s, w] = unproject(x0 - pad, y0 - pad)
   const [n, e] = unproject(x1 + pad, y1 + pad)

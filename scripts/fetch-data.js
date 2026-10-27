@@ -21,7 +21,7 @@ const TILE_COLS = 4
 const exists = (path) => access(path).then(() => true, () => false)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-async function overpass(query, attempts = 8) {
+async function overpass(query, attempts = 15) {
   for (let i = 1; i <= attempts; i++) {
     const server = OVERPASS_SERVERS[(i - 1) % OVERPASS_SERVERS.length]
     const res = await fetch(server, {
@@ -33,7 +33,7 @@ async function overpass(query, attempts = 8) {
     if (i === attempts || ![0, 429, 502, 503, 504].includes(res.status)) {
       throw new Error(`Overpass ${res.status}: ${(await res.text()).slice(0, 200)}`)
     }
-    const wait = Math.min(15 * i, 60)
+    const wait = Math.min(15 * i, 120)
     console.log(`  ${new URL(server).host} busy (${res.status}), retrying in ${wait}s`)
     await sleep(wait * 1000)
   }
@@ -66,14 +66,14 @@ await mkdir(RAW, { recursive: true })
 
 await save('nea-dsa.geojson', fetchNeaDsa)
 
-for (const rule of RULES.filter((r) => r.query)) {
+for (const rule of RULES.filter((r) => r.query && !r.tiled)) {
   const selectors = rule.query.map((q) => `${q}(area.sg);`).join('')
   await save(`osm-${rule.id}.json`, () =>
     overpass(`[out:json][timeout:180];area["ISO3166-1"="SG"][admin_level=2]->.sg;(${selectors});out geom;`),
   )
 }
 
-// The building tiles are rectangles that also catch Johor Bahru and Batam;
+// Tiles are rectangles that also catch Johor Bahru and Batam;
 // build-zones.js clips them to this boundary.
 await save('osm-sg-boundary.json', () =>
   overpass('[out:json][timeout:180];rel["ISO3166-1"="SG"][admin_level=2];out geom;'),
@@ -89,6 +89,10 @@ for (let row = 0; row < TILE_ROWS; row++) {
     await save(`osm-buildings-${row}-${col}.json`, () =>
       overpass(`[out:json][timeout:180];way["building"](${bbox});out geom;`),
     )
+    for (const rule of RULES.filter((r) => r.tiled)) {
+      const selectors = rule.query.map((q) => `${q}(${bbox});`).join('')
+      await save(`osm-${rule.id}-${row}-${col}.json`, () => overpass(`[out:json][timeout:180];(${selectors});out geom;`))
+    }
   }
 }
 

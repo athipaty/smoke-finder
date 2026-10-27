@@ -4,6 +4,7 @@ import { createChecker } from '../src/engine.js'
 import { project, unproject, bboxOf, inRings } from '../src/geo.js'
 import { buildingRuleFor } from '../src/rules.js'
 import { elementToZone, stitchRings } from '../src/osm.js'
+import { findLegalSpots, walkMinutes } from '../src/nearby.js'
 
 // Everything is laid out in metres around an origin in Tampines, then
 // converted back to lat/lng for the checker.
@@ -23,6 +24,7 @@ const data = {
     zone({ rule: 'covered_walkway', kind: 'line', path: [OX + 4000, OY, OX + 4100, OY], name: null, osm: 'way/4' }),
     zone({ rule: 'orchard_nsz', kind: 'poly', rings: [square(5000, 0, 500)], name: 'NSZ', osm: null }),
     zone({ rule: 'carpark_building', kind: 'poly', rings: [square(6000, 0, 50)], name: null, osm: 'way/6' }),
+    zone({ rule: 'road', kind: 'line', path: [OX + 7000, OY - 500, OX + 7000, OY + 500], bufferM: 10, name: 'Test Ave', osm: 'way/7' }),
   ],
   dsas: [{ id: 1, name: 'TEST MALL', description: 'Back of building', x: OX + 5250, y: OY + 250 }],
   builtAt: '2026-10-27T00:00:00Z',
@@ -97,6 +99,50 @@ test('inRings tells points inside the boundary from points outside it', () => {
   const outside = at(150, 50)
   assert.equal(inRings(inside.lat, inside.lng, rings), true)
   assert.equal(inRings(outside.lat, outside.lng, rings), false)
+})
+
+test('findLegalSpots: nearest green points first, spaced apart, none inside banned zones', () => {
+  // Stand in the middle of the test park: everything within ~100 m is red.
+  const spots = findLegalSpots(check, at(2100, 100), { radiusM: 200, limit: 3 })
+  assert.ok(spots.length > 0)
+  assert.ok(spots.every((s) => check(s).verdict === 'green'))
+  assert.ok(spots.every((s, i) => i === 0 || s.distanceM >= spots[i - 1].distanceM))
+  assert.ok(spots[0].distanceM > 100, 'first legal spot is outside the 200 m park')
+  for (let i = 0; i < spots.length; i++) {
+    for (let j = i + 1; j < spots.length; j++) {
+      const a = project(spots[i].lat, spots[i].lng), b = project(spots[j].lat, spots[j].lng)
+      assert.ok(Math.hypot(a[0] - b[0], a[1] - b[1]) >= 59)
+    }
+  }
+})
+
+test('a road never changes the verdict, but flags onRoad within its own width', () => {
+  const onRoad = check(at(7008, 0))
+  assert.equal(onRoad.verdict, 'green')
+  assert.equal(onRoad.onRoad, true)
+  assert.equal(onRoad.reasons.length, 0)
+  assert.equal(check(at(7015, 0)).onRoad, false)
+})
+
+test('findLegalSpots skips points on a road', () => {
+  const spots = findLegalSpots(check, at(7000, 0), { radiusM: 40, spacingM: 5, limit: 50 })
+  assert.ok(spots.length > 0)
+  assert.ok(spots.every((s) => !check(s).onRoad))
+  assert.ok(spots[0].distanceM > 10)
+})
+
+test('findLegalSpots does not list a DSA as an open area', () => {
+  const spots = findLegalSpots(check, at(5250, 250), { radiusM: 30, spacingM: 1, limit: 100 })
+  assert.ok(spots.every((s) => !check(s).designatedArea))
+})
+
+test('findLegalSpots returns nothing when the whole area is banned', () => {
+  assert.deepEqual(findLegalSpots(check, at(5250, 100), { radiusM: 100 }), [])
+})
+
+test('walkMinutes is at least 1 and grows with distance', () => {
+  assert.equal(walkMinutes(0), 1)
+  assert.ok(walkMinutes(400) > walkMinutes(100))
 })
 
 test('landed homes are skipped; HDB blocks, roofs and carparks are classified', () => {
