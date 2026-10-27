@@ -21,6 +21,11 @@ export function pointInRing(px, py, ring) {
   return inside
 }
 
+export const inRings = (lat, lng, rings) => {
+  const [x, y] = project(lat, lng)
+  return rings.some((ring) => pointInRing(x, y, ring))
+}
+
 export function segmentDistance(px, py, ax, ay, bx, by) {
   const dx = bx - ax, dy = by - ay
   const len2 = dx * dx + dy * dy

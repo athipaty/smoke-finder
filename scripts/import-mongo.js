@@ -61,7 +61,14 @@ try {
   for (const z of data.zones) counts[z.rule] = (counts[z.rule] ?? 0) + 1
   await db.collection('smokemeta').replaceOne(
     { _id: 'current' },
-    { builtAt: data.builtAt, importedAt: new Date().toISOString(), sources: data.sources, counts, dsaCount: data.dsas.length },
+    {
+      builtAt: data.builtAt,
+      importedAt: new Date().toISOString(),
+      sources: data.sources,
+      counts,
+      dsaCount: data.dsas.length,
+      boundary: data.boundary,
+    },
     { upsert: true },
   )
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createChecker } from '../src/engine.js'
-import { project, unproject, bboxOf } from '../src/geo.js'
+import { project, unproject, bboxOf, inRings } from '../src/geo.js'
 import { buildingRuleFor } from '../src/rules.js'
 import { elementToZone, stitchRings } from '../src/osm.js'
 
@@ -89,6 +89,14 @@ test('inside a multi-storey carpark is amber', () => {
 test('reasons list the most severe first', () => {
   const r = check(at(3043, 20))
   assert.ok(r.reasons.every((x, i, a) => i === 0 || a[i - 1].verdict !== 'amber' || x.verdict !== 'red'))
+})
+
+test('inRings tells points inside the boundary from points outside it', () => {
+  const rings = [square(0, 0, 100)]
+  const inside = at(50, 50)
+  const outside = at(150, 50)
+  assert.equal(inRings(inside.lat, inside.lng, rings), true)
+  assert.equal(inRings(outside.lat, outside.lng, rings), false)
 })
 
 test('landed homes are skipped; HDB blocks, roofs and carparks are classified', () => {

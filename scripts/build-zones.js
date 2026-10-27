@@ -82,6 +82,8 @@ const out = {
     osm: { timestamp: osmTimestamp, licence: 'ODbL, © OpenStreetMap contributors' },
     nea: { dataset: 'Designated Smoking Areas, data.gov.sg', count: dsas.length },
   },
+  // Lets the API turn away points outside Singapore (e.g. Johor Bahru), where these rules don't apply.
+  boundary: sg.rings,
   zones,
   dsas,
 }
