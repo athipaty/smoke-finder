@@ -20,6 +20,7 @@ export const KEYS = {
   locationAllowed: 'sf.locationAllowed',
   deviceId: 'sf.deviceId',
   shelteredOnly: 'sf.shelteredOnly',
+  lastPing: 'sf.lastPing',
 }
 
 // Random id so the server can count one vote per phone. It identifies nothing

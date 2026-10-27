@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleMarker } from 'react-leaflet'
-import { fetchSpot, voteSpot } from '../api.js'
-import { directionsUrl, distanceText, featureText, sinceText, spotTitle } from '../format.js'
+import { fetchDsas, fetchSpot, voteSpot } from '../api.js'
+import { directionsUrl, distanceText, featureText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
+import { useGeo } from '../geo.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import SgMap from '../components/SgMap.jsx'
 import { COLOURS } from '../colours.js'
@@ -13,6 +14,26 @@ const VOTES = [
   { type: 'gone', label: 'vote.gone', done: 'vote.thanksReport' },
   { type: 'not_allowed', label: 'vote.notAllowed', done: 'vote.thanksReport' },
 ]
+
+// Links that open a spot directly: /spot?c=<id> (community), ?nea=<id> (NEA area),
+// ?at=<lat>,<lng> (open area).
+function shareUrl(spot) {
+  const params =
+    spot.kind === 'community' ? { c: spot.id } : spot.kind === 'dsa' ? { nea: spot.neaId } : { at: `${spot.lat.toFixed(6)},${spot.lng.toFixed(6)}` }
+  return `${window.location.origin}/spot?${new URLSearchParams(params)}`
+}
+
+async function spotFromLink(params) {
+  if (params.get('c')) return { ...(await fetchSpot(params.get('c'))), kind: 'community' }
+  if (params.get('nea')) {
+    const dsa = (await fetchDsas()).find((d) => String(d.neaId) === params.get('nea'))
+    if (!dsa) throw Object.assign(new Error('not found'), { status: 404 })
+    return { ...dsa, kind: 'dsa' }
+  }
+  const [lat, lng] = (params.get('at') ?? '').split(',').map(Number)
+  if (Number.isFinite(lat) && Number.isFinite(lng)) return { kind: 'open', lat, lng }
+  return null
+}
 
 function statusText(s, t) {
   const confirmed = t('detail.lastConfirmed', { when: sinceText(s.lastConfirmedAt, t) })
@@ -82,12 +103,29 @@ function CommunityActions({ spot, onChange }) {
 }
 
 export default function SpotDetail() {
-  const { state } = useLocation()
+  const location = useLocation()
+  const { state } = location
+  const [params] = useSearchParams()
   const navigate = useNavigate()
   const { t } = useI18n()
+  const { geo } = useGeo()
   const favourites = useFavourites()
   const [spot, setSpot] = useState(state?.spot ?? null)
   const [removed, setRemoved] = useState(false)
+  const [link, setLink] = useState({ status: state?.spot ? 'done' : 'loading' })
+  const [copied, setCopied] = useState(false)
+
+  // Opened from a shared link: load the spot it points to.
+  useEffect(() => {
+    if (state?.spot) return
+    let cancelled = false
+    spotFromLink(params)
+      .then((s) => !cancelled && (s ? (setSpot(s), setLink({ status: 'done' })) : setLink({ status: 'none' })))
+      .catch(() => !cancelled && setLink({ status: 'missing' }))
+    return () => {
+      cancelled = true
+    }
+  }, [state?.spot, params])
 
   // Community spots change as people vote, so fetch the latest copy.
   useEffect(() => {
@@ -101,12 +139,43 @@ export default function SpotDetail() {
     }
   }, [state?.spot?.id, state?.spot?.kind])
 
-  if (!spot) return <Navigate to="/map" replace />
+  if (link.status === 'none') return <Navigate to="/map" replace />
+  if (link.status !== 'done' || !spot) {
+    return (
+      <main className="flex flex-1 flex-col justify-center px-6 text-center">
+        <p className="text-stone-600 dark:text-stone-300" role="status">
+          {link.status === 'loading' ? t('detail.loading') : t('detail.notFound')}
+        </p>
+        {link.status === 'missing' && (
+          <Link to="/map" className="mx-auto mt-4 rounded-xl bg-go px-5 py-3 font-semibold text-white dark:bg-go-dark dark:text-stone-950">
+            {t('detail.seeNearby')}
+          </Link>
+        )}
+      </main>
+    )
+  }
 
-  const { from } = state
+  // From the list we know where the user was; from a link, use their position if we have it.
+  const from = state?.from ?? geo.coords
+  const distanceM = spot.distanceM ?? (from ? Math.round(metresBetween(from, spot)) : null)
+  const walkMin = spot.walkMin ?? (distanceM != null ? walkMinutes(distanceM) : null)
   const colour = COLOURS[spot.kind]
   const title = spotTitle(spot, t)
   const features = spot.kind === 'community' ? featureText(spot, t) : ''
+  // A link opened in a new tab has no in-app history to go back to.
+  const goBack = () => (location.key === 'default' ? navigate('/map') : navigate(-1))
+
+  const share = async () => {
+    const url = shareUrl(spot)
+    try {
+      if (navigator.share) return await navigator.share({ title, url })
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // share sheet closed, or clipboard blocked: nothing to do
+    }
+  }
 
   return (
     <main className="flex flex-1 flex-col">
@@ -117,10 +186,17 @@ export default function SpotDetail() {
         </SgMap>
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={goBack}
           className="absolute left-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[400] rounded-full bg-white/95 px-4 py-2 text-sm font-semibold shadow dark:bg-stone-900/95"
         >
           {t('common.back')}
+        </button>
+        <button
+          type="button"
+          onClick={share}
+          className="absolute right-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[400] rounded-full bg-white/95 px-4 py-2 text-sm font-semibold shadow dark:bg-stone-900/95"
+        >
+          {copied ? t('detail.copied') : t('detail.share')}
         </button>
       </div>
 
@@ -146,9 +222,7 @@ export default function SpotDetail() {
         )}
         {spot.kind === 'dsa' && spot.description && <p className="text-stone-600 dark:text-stone-300">{spot.description}</p>}
         {features && <p className="text-stone-600 first-letter:uppercase dark:text-stone-300">{features}</p>}
-        {spot.distanceM != null && (
-          <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walk', { n: spot.walkMin, d: distanceText(spot.distanceM) })}</p>
-        )}
+        {distanceM != null && <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walk', { n: walkMin, d: distanceText(distanceM) })}</p>}
         {spot.kind === 'community' && !removed && spot.lastConfirmedAt && (
           <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{statusText(spot, t)}</p>
         )}

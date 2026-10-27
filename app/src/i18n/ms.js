@@ -218,4 +218,11 @@ export default {
   'changi.level': "Tingkat {n}",
   'changi.source': "Sumber: Lapangan Terbang Changi",
   'rules.quit': "Mahu berhenti merokok? Bantuan percuma:",
+
+  'detail.share': "Kongsi",
+  'detail.copied': "Pautan disalin",
+  'detail.loading': "Memuatkan tempat…",
+  'detail.notFound': "Tempat ini tidak ditemui. Ia mungkin telah dibuang.",
+  'detail.seeNearby': "Lihat tempat berdekatan",
+  'rules.privacy': "Untuk menambah baik aplikasi, kami mengira kekerapan ia digunakan dengan ID rawak pada telefon anda. Tiada lokasi atau butiran peribadi dikumpul untuk ini.",
 }

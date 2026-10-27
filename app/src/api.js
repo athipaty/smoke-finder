@@ -26,6 +26,11 @@ export const fetchNearby = ({ lat, lng }) => request('/nearby', { params: { lat,
 
 export const fetchSpot = (id) => request(`/spots/${id}`, { device: true })
 
+export const fetchDsas = () => request('/dsas')
+
+// Once a day per device: "the app was opened" (no location).
+export const ping = () => request('/ping', { method: 'POST', device: true })
+
 // F5. `spot`: { lat, lng, name, sheltered, hasAshtray, hasSeating, photo?: File }
 export function addSpot(spot) {
   const form = new FormData()

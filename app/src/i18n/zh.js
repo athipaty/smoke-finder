@@ -218,4 +218,11 @@ export default {
   'changi.level': "{n} 楼",
   'changi.source': "资料来源：樟宜机场",
   'rules.quit': "想戒烟吗？免费帮助：",
+
+  'detail.share': "分享",
+  'detail.copied': "链接已复制",
+  'detail.loading': "正在加载地点…",
+  'detail.notFound': "找不到这个地点，可能已被移除。",
+  'detail.seeNearby': "查看您附近的地点",
+  'rules.privacy': "为了改进应用，我们会用您手机上的一个随机编号统计使用次数。此统计不收集位置或个人资料。",
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { admin } from '../api.js'
 import { featureText, sinceText } from '../format.js'
 import { useI18n } from '../i18n/index.jsx'
+import MetricsView from '../components/MetricsView.jsx'
 
 const FILTERS = [
   { id: 'review', label: 'Needs review' },
@@ -137,6 +138,7 @@ function SpotCard({ spot, onChange, onRemoved }) {
 
 export default function Admin() {
   const [loggedIn, setLoggedIn] = useState(admin.loggedIn)
+  const [view, setView] = useState('spots')
   const [filter, setFilter] = useState('review')
   const [state, setState] = useState({ status: 'idle', spots: [], counts: {}, error: null })
 
@@ -176,35 +178,59 @@ export default function Admin() {
           Log out
         </button>
       </div>
-      <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
-        {c.verified ?? 0} verified · {c.unverified ?? 0} unverified · {c.hidden ?? 0} hidden
-      </p>
-
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        {FILTERS.map((f) => (
+      <div className="mt-3 flex rounded-xl bg-stone-200 p-1 text-sm font-medium dark:bg-stone-800" role="tablist">
+        {[
+          { id: 'spots', label: 'Spots' },
+          { id: 'metrics', label: 'Metrics' },
+        ].map((v) => (
           <button
-            key={f.id}
+            key={v.id}
             type="button"
-            aria-pressed={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium ${
-              filter === f.id ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
-            }`}
+            role="tab"
+            aria-selected={view === v.id}
+            onClick={() => setView(v.id)}
+            className={`flex-1 rounded-lg py-1.5 ${view === v.id ? 'bg-white shadow-sm dark:bg-stone-900' : 'text-stone-600 dark:text-stone-300'}`}
           >
-            {f.label}
+            {v.label}
           </button>
         ))}
       </div>
 
-      {state.status === 'loading' && <p className="mt-4 text-stone-500" role="status">Loading…</p>}
-      {state.error && <p className="mt-4 text-stop dark:text-stop-dark" role="alert">{state.error}</p>}
-      {state.status === 'done' && state.spots.length === 0 && <p className="mt-4 text-stone-500 dark:text-stone-400">Nothing here.</p>}
+      {view === 'metrics' ? (
+        <MetricsView />
+      ) : (
+        <>
+          <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
+            {c.verified ?? 0} verified · {c.unverified ?? 0} unverified · {c.hidden ?? 0} hidden
+          </p>
 
-      <ul className="mt-4 space-y-3">
-        {state.spots.map((s) => (
-          <SpotCard key={s.id} spot={s} onChange={replace} onRemoved={removeLocal} />
-        ))}
-      </ul>
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                aria-pressed={filter === f.id}
+                onClick={() => setFilter(f.id)}
+                className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium ${
+                  filter === f.id ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {state.status === 'loading' && <p className="mt-4 text-stone-500" role="status">Loading…</p>}
+          {state.error && <p className="mt-4 text-stop dark:text-stop-dark" role="alert">{state.error}</p>}
+          {state.status === 'done' && state.spots.length === 0 && <p className="mt-4 text-stone-500 dark:text-stone-400">Nothing here.</p>}
+
+          <ul className="mt-4 space-y-3">
+            {state.spots.map((s) => (
+              <SpotCard key={s.id} spot={s} onChange={replace} onRemoved={removeLocal} />
+            ))}
+          </ul>
+        </>
+      )}
     </main>
   )
 }
