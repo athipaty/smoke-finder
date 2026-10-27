@@ -61,7 +61,7 @@ export default {
   'near.saved': 'Saved',
   'near.rain': '{forecast} expected in {area} ({period}).',
   'near.shelteredOnly': 'Sheltered spots only',
-  'near.shelteredHint': 'Spots people marked as covered',
+  'near.shelteredHint': "Hides spots known to be uncovered",
   'near.loading': 'Looking around you…',
   'near.noneSheltered': 'No sheltered spots known nearby yet. Turn the filter off to see open areas, or add a covered spot when you find one.',
   'near.none': 'No legal spot within {m} m in our data. Try moving away from buildings, bus stops and parks, then refresh.',

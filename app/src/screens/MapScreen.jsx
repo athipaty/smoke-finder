@@ -66,7 +66,9 @@ export default function MapScreen() {
   const weather = state.nearby?.weather
   const shelteredOnly = shelteredChoice ?? Boolean(weather?.raining)
   const allSpots = useMemo(() => (state.nearby ? toSpots(state.nearby) : []), [state.nearby])
-  const spots = shelteredOnly ? allSpots.filter((s) => s.sheltered) : allSpots
+  // In rain, hide only spots known to be uncovered. NEA areas (shelter unknown)
+  // stay: in Orchard they're the only legal places at all.
+  const spots = shelteredOnly ? allSpots.filter((s) => s.sheltered !== false) : allSpots
   const you = geo.coords
   const open = (spot) => navigate('/spot', { state: { spot, from: you } })
   const saved = you

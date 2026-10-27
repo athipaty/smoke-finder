@@ -61,7 +61,7 @@ export default {
   'near.saved': 'Disimpan',
   'near.rain': '{forecast} dijangka di {area} ({period}).',
   'near.shelteredOnly': 'Tempat berbumbung sahaja',
-  'near.shelteredHint': 'Tempat yang ditanda berbumbung oleh pengguna',
+  'near.shelteredHint': "Sembunyikan tempat yang diketahui tidak berbumbung",
   'near.loading': 'Melihat sekeliling anda…',
   'near.noneSheltered': 'Belum ada tempat berbumbung yang diketahui berdekatan. Matikan penapis untuk melihat kawasan terbuka, atau tambah tempat berbumbung apabila anda menemuinya.',
   'near.none': 'Tiada tempat sah dalam lingkungan {m} m dalam data kami. Cuba jauhkan diri dari bangunan, perhentian bas dan taman, kemudian muat semula.',

@@ -61,7 +61,7 @@ export default {
   'near.saved': '已收藏',
   'near.rain': '{area}预计有{forecast}（{period}）。',
   'near.shelteredOnly': '只显示有遮蔽的地点',
-  'near.shelteredHint': '用户标记为有遮蔽的地点',
+  'near.shelteredHint': "隐藏已知没有遮蔽的地点",
   'near.loading': '正在查看您周围…',
   'near.noneSheltered': '附近暂时没有已知的有遮蔽地点。关闭筛选可查看开放地点，或在找到有遮蔽的地点时添加它。',
   'near.none': '根据我们的数据，{m} 米内没有合法地点。请远离建筑物、巴士站和公园，然后刷新。',
