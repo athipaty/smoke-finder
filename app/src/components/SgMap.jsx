@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
 
 // OneMap (Singapore Land Authority) base tiles; Night style in dark mode.
 const TILES = (style) => `https://www.onemap.gov.sg/maps/tiles/${style}/{z}/{x}/{y}.png`

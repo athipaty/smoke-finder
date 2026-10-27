@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { GeoProvider } from './geo.jsx'
 import { FavouritesProvider } from './favourites.jsx'
@@ -8,13 +8,18 @@ import { ping } from './api.js'
 import TabBar from './components/TabBar.jsx'
 import Onboarding from './screens/Onboarding.jsx'
 import Check from './screens/Check.jsx'
-import MapScreen from './screens/MapScreen.jsx'
-import SpotDetail from './screens/SpotDetail.jsx'
 import Rules from './screens/Rules.jsx'
-import AddSpot from './screens/AddSpot.jsx'
-import Admin from './screens/Admin.jsx'
-import Report from './screens/Report.jsx'
-import PrivacyRoute from './screens/Privacy.jsx'
+import PrivacyRoute from './screens/Privacy.jsx' // small, and the first screen needs it anyway
+
+// Loaded when first opened, so the Check screen (what most people open the
+// app for) starts sooner. The map library alone is about a third of the code.
+const loadMapScreen = () => import('./screens/MapScreen.jsx')
+const loadSpotDetail = () => import('./screens/SpotDetail.jsx')
+const MapScreen = lazy(loadMapScreen)
+const SpotDetail = lazy(loadSpotDetail)
+const AddSpot = lazy(() => import('./screens/AddSpot.jsx'))
+const Admin = lazy(() => import('./screens/Admin.jsx'))
+const Report = lazy(() => import('./screens/Report.jsx'))
 
 // Today's date in Singapore, to ping at most once a day.
 const sgToday = () => new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
@@ -30,6 +35,15 @@ export default function App() {
       .catch(() => {}) // not important enough to retry
   }, [ageConfirmed])
 
+  // Fetch Nearby and spot details once the first screen is up, so they open
+  // instantly and the service worker has them for use without signal.
+  useEffect(() => {
+    if (!ageConfirmed) return
+    const preload = () => Promise.all([loadMapScreen(), loadSpotDetail()]).catch(() => {})
+    const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 2000))
+    idle(preload)
+  }, [ageConfirmed])
+
   return (
     <I18nProvider>
       {ageConfirmed ? (
@@ -37,17 +51,19 @@ export default function App() {
           <FavouritesProvider>
             <BrowserRouter>
               <div className="mx-auto flex min-h-dvh max-w-lg flex-col pb-[calc(4rem+env(safe-area-inset-bottom))]">
-                <Routes>
-                  <Route path="/" element={<Check />} />
-                  <Route path="/map" element={<MapScreen />} />
-                  <Route path="/spot" element={<SpotDetail />} />
-                  <Route path="/add" element={<AddSpot />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/report" element={<Report />} />
-                  <Route path="/rules" element={<Rules />} />
-                  <Route path="/privacy" element={<PrivacyRoute />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                <Suspense fallback={null}>
+                  <Routes>
+                    <Route path="/" element={<Check />} />
+                    <Route path="/map" element={<MapScreen />} />
+                    <Route path="/spot" element={<SpotDetail />} />
+                    <Route path="/add" element={<AddSpot />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/report" element={<Report />} />
+                    <Route path="/rules" element={<Rules />} />
+                    <Route path="/privacy" element={<PrivacyRoute />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Suspense>
               </div>
               <TabBar />
             </BrowserRouter>

@@ -226,4 +226,6 @@ export default {
   'install.ok': "OK",
   'install.iosBefore': "In Safari, tap Share",
   'install.iosAfter': ", then “Add to Home Screen”.",
+  'shareApp.button': "Share this app with a friend",
+  'shareApp.text': "Check if you can smoke where you are in Singapore, and find the nearest legal spot.",
 }

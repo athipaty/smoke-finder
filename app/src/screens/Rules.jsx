@@ -19,6 +19,32 @@ function Section({ title, children }) {
   )
 }
 
+// Opens the phone's share sheet (WhatsApp, Telegram...), or copies the link.
+function ShareApp() {
+  const { t } = useI18n()
+  const [copied, setCopied] = useState(false)
+  const share = async () => {
+    const url = window.location.origin
+    try {
+      if (navigator.share) return await navigator.share({ title: 'Smoke Finder SG', text: t('shareApp.text'), url })
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // share sheet closed, or clipboard blocked: nothing to do
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={share}
+      className="mt-6 w-full rounded-xl bg-white py-3 font-semibold shadow-sm active:opacity-80 dark:bg-stone-900"
+    >
+      {copied ? t('detail.copied') : t('shareApp.button')}
+    </button>
+  )
+}
+
 // Data date (from the server), boundary source and app version.
 function AboutData() {
   const { t, lang } = useI18n()
@@ -97,6 +123,8 @@ export default function Rules() {
           ))}
         </ul>
       </Section>
+
+      <ShareApp />
 
       <AboutData />
 

@@ -265,4 +265,6 @@ export default {
   'install.ok': "好的",
   'install.iosBefore': "在 Safari 中点击“分享”",
   'install.iosAfter': "，然后选择“添加到主屏幕”。",
+  'shareApp.button': "分享给朋友",
+  'shareApp.text': "查看您在新加坡所在的地方能不能吸烟，并找到最近的合法吸烟点。",
 }

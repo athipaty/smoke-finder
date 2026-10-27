@@ -265,4 +265,6 @@ export default {
   'install.ok': "OK",
   'install.iosBefore': "Dalam Safari, ketik Kongsi",
   'install.iosAfter': ", kemudian “Tambah ke Skrin Utama”.",
+  'shareApp.button': "Kongsi aplikasi ini dengan kawan",
+  'shareApp.text': "Semak sama ada anda boleh merokok di tempat anda di Singapura, dan cari tempat sah yang terdekat.",
 }

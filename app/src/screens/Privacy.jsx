@@ -39,7 +39,9 @@ const SECTIONS = [
   },
   {
     title: 'Problem reports',
-    body: ['Reports you send are read by our moderators and deleted automatically after 180 days.'],
+    body: [
+      'Reports you send are read by our moderators and deleted automatically after 180 days. When a report arrives, or a spot is added, moderators get a phone notification through ntfy.sh with the type of report and the start of its text (never a location).',
+    ],
   },
   {
     title: 'Things kept only on your phone',
