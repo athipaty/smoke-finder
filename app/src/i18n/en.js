@@ -171,4 +171,12 @@ export default {
   'alerts.iosHint': "On iPhone, first add this app to your Home Screen (Share, then Add to Home Screen).",
   'alerts.denied': "Notifications are blocked for this site. Allow them in your browser settings.",
   'alerts.unsupported': "This browser can't show alerts.",
+
+  'changi.title': "Changi Airport smoking areas",
+  'changi.intro': "At the airport, smoking is only allowed in these designated areas. All open daily, with seats and ashtrays.",
+  'changi.public': "Before immigration",
+  'changi.transit': "After immigration (transit)",
+  'changi.level': "Level {n}",
+  'changi.source': "Source: Changi Airport",
+  'rules.quit': "Thinking of quitting? Free help:",
 }

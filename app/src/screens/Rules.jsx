@@ -73,6 +73,12 @@ export default function Rules() {
         </a>
         . {t('rules.owners')}
       </p>
+      <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">
+        {t('rules.quit')}{' '}
+        <a href="https://www.healthhub.sg/programmes/iquit" target="_blank" rel="noopener noreferrer" className="underline">
+          {t('onb.iquit')}
+        </a>
+      </p>
     </main>
   )
 }

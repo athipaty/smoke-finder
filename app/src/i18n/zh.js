@@ -210,4 +210,12 @@ export default {
   'alerts.iosHint': "在 iPhone 上，请先把本应用添加到主屏幕（分享，然后“添加到主屏幕”）。",
   'alerts.denied': "此网站的通知已被阻止。请在浏览器设置中允许通知。",
   'alerts.unsupported': "此浏览器无法显示提醒。",
+
+  'changi.title': "樟宜机场吸烟区",
+  'changi.intro': "在机场，只可在以下指定吸烟区吸烟。全部每天开放，设有座位和烟灰缸。",
+  'changi.public': "出境检查前",
+  'changi.transit': "出境检查后（转机区）",
+  'changi.level': "{n} 楼",
+  'changi.source': "资料来源：樟宜机场",
+  'rules.quit': "想戒烟吗？免费帮助：",
 }

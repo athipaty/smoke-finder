@@ -210,4 +210,12 @@ export default {
   'alerts.iosHint': "Di iPhone, tambahkan aplikasi ini ke Skrin Utama dahulu (Kongsi, kemudian Tambah ke Skrin Utama).",
   'alerts.denied': "Pemberitahuan disekat untuk laman ini. Benarkannya dalam tetapan pelayar anda.",
   'alerts.unsupported': "Pelayar ini tidak dapat menunjukkan makluman.",
+
+  'changi.title': "Kawasan merokok Lapangan Terbang Changi",
+  'changi.intro': "Di lapangan terbang, merokok hanya dibenarkan di kawasan yang ditetapkan ini. Semua dibuka setiap hari, dengan tempat duduk dan bekas abu rokok.",
+  'changi.public': "Sebelum imigresen",
+  'changi.transit': "Selepas imigresen (transit)",
+  'changi.level': "Tingkat {n}",
+  'changi.source': "Sumber: Lapangan Terbang Changi",
+  'rules.quit': "Mahu berhenti merokok? Bantuan percuma:",
 }

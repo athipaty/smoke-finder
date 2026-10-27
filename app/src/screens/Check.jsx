@@ -5,6 +5,8 @@ import { checkSpot } from '../api.js'
 import { load, KEYS } from '../storage.js'
 import { useI18n } from '../i18n/index.jsx'
 import VerdictCard from '../components/VerdictCard.jsx'
+import ChangiCard from '../components/ChangiCard.jsx'
+import { terminalFor } from '../../../src/changi.js'
 
 const SLOW_MS = 3000 // the backend can take a while to wake up
 
@@ -38,6 +40,7 @@ export default function Check() {
   const busy = geo.status === 'locating' || state.status === 'loading'
   const result = state.status === 'done' ? state.result : null
   const error = geo.error ? t(`geo.${geo.error}`) : state.error
+  const terminal = result && geo.coords ? terminalFor({ ...geo.coords, reasons: result.reasons }) : null
 
   return (
     <main className="flex flex-1 flex-col px-4 pt-[calc(1.5rem+env(safe-area-inset-top))]">
@@ -46,6 +49,7 @@ export default function Check() {
 
       <div className="mt-6">
         {result && <VerdictCard result={result} />}
+        {terminal && <ChangiCard key={terminal} terminal={terminal} />}
 
         {busy && (
           <div className="rounded-2xl bg-white p-6 text-center shadow-sm dark:bg-stone-900" role="status">

@@ -1,5 +1,7 @@
 // Checks real places against the built data. Coordinates are approximate,
-// so a failure means "look at this", not necessarily a bug.
+// so a failure means "look at this", not necessarily a bug. With --strict
+// (used by the scheduled refresh) any unexpected result exits non-zero, so
+// a suspicious dataset is never imported.
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { createChecker } from '../src/engine.js'
@@ -35,3 +37,8 @@ const N = 20000
 const t0 = performance.now()
 for (let i = 0; i < N; i++) check({ lat: 1.27 + Math.random() * 0.17, lng: 103.65 + Math.random() * 0.33 })
 console.log(`${N} random checks: ${((performance.now() - t0) / N).toFixed(3)} ms each`)
+
+if (process.argv.includes('--strict') && ok !== CASES.length) {
+  console.error(`--strict: ${CASES.length - ok} place(s) gave an unexpected result`)
+  process.exitCode = 1
+}

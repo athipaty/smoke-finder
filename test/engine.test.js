@@ -5,6 +5,7 @@ import { project, unproject, bboxOf, inRings } from '../src/geo.js'
 import { buildingRuleFor } from '../src/rules.js'
 import { elementToZone, stitchRings } from '../src/osm.js'
 import { findLegalSpots, walkMinutes } from '../src/nearby.js'
+import { CHANGI_AREAS, terminalFor } from '../src/changi.js'
 
 // Everything is laid out in metres around an origin in Tampines, then
 // converted back to lat/lng for the checker.
@@ -143,6 +144,16 @@ test('findLegalSpots returns nothing when the whole area is banned', () => {
 test('walkMinutes is at least 1 and grows with distance', () => {
   assert.equal(walkMinutes(0), 1)
   assert.ok(walkMinutes(400) > walkMinutes(100))
+})
+
+test('Changi: 32 areas across T1-T4; terminal found from the check or by distance', () => {
+  assert.equal(CHANGI_AREAS.length, 32)
+  assert.deepEqual([...new Set(CHANGI_AREAS.map((a) => a.terminal))].sort(), ['T1', 'T2', 'T3', 'T4'])
+  assert.ok(CHANGI_AREAS.every((a) => ['public', 'transit'].includes(a.zone) && a.where))
+  // Inside T3's building outline, even if T2's centre happens to be nearer
+  assert.equal(terminalFor({ lat: 1.3540, lng: 103.9890, reasons: [{ rule: 'building', osm: 'way/173010413' }] }), 'T3')
+  assert.equal(terminalFor({ lat: 1.3388, lng: 103.9843 }), 'T4')
+  assert.equal(terminalFor({ lat: 1.3138, lng: 103.8159 }), null) // Botanic Gardens
 })
 
 test('landed homes are skipped; HDB blocks, roofs and carparks are classified', () => {

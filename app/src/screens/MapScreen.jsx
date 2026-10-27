@@ -9,6 +9,8 @@ import { useI18n } from '../i18n/index.jsx'
 import { load, save, KEYS } from '../storage.js'
 import SgMap from '../components/SgMap.jsx'
 import AlertsCard from '../components/AlertsCard.jsx'
+import ChangiCard from '../components/ChangiCard.jsx'
+import { terminalFor } from '../../../src/changi.js'
 import { COLOURS } from '../colours.js'
 
 const MAX_FIT_M = 600 // don't zoom out for far-away spots; they're still in the list
@@ -98,6 +100,7 @@ export default function MapScreen() {
   }
 
   const fit = [you, ...spots.filter((s) => s.distanceM <= MAX_FIT_M)]
+  const terminal = terminalFor(you)
 
   return (
     <main className="flex flex-1 flex-col">
@@ -131,6 +134,8 @@ export default function MapScreen() {
             </Link>
           </div>
         </div>
+
+        {terminal && <ChangiCard key={terminal} terminal={terminal} />}
 
         {saved.length > 0 && (
           <div className="mt-3">
