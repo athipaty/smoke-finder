@@ -207,4 +207,13 @@ export default {
   'report.backToApp': "Back to the app",
   'check.wrongAnswer': "Answer looks wrong? Tell us",
   'rules.report': "Something wrong in the app? Report a problem",
+
+  'privacy.title': "Privacy & terms",
+  'privacy.englishOnly': "",
+  'privacy.link': "Privacy & terms",
+  'about.title': "About the data",
+  'about.updated': "Rules data updated {date}",
+  'about.orchard': "Orchard Road No Smoking Zone boundary: NEA (OneMap), last changed by NEA on 1 Feb 2024",
+  'about.sources': "Sources: NEA, OpenStreetMap contributors, OneMap (SLA), Changi Airport",
+  'about.version': "App version {v}",
 }

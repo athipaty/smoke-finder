@@ -28,6 +28,9 @@ export const fetchSpot = (id) => request(`/spots/${id}`, { device: true })
 
 export const fetchDsas = () => request('/dsas')
 
+// When the rules data was built and imported, and its sources.
+export const fetchMeta = () => request('/meta')
+
 // Real walking route (OneMap): { minutes, metres, path: [[lat, lng], ...] }
 export const fetchRoute = (from, to) =>
   request('/route', { params: { from: `${from.lat},${from.lng}`, to: `${to.lat},${to.lng}` } })

@@ -246,4 +246,13 @@ export default {
   'report.backToApp': "返回应用",
   'check.wrongAnswer': "答案看起来不对？告诉我们",
   'rules.report': "应用有问题？报告问题",
+
+  'privacy.title': "隐私与条款",
+  'privacy.englishOnly': "此页面只有英文版本，以英文版本为准。",
+  'privacy.link': "隐私与条款",
+  'about.title': "关于数据",
+  'about.updated': "规定数据更新于 {date}",
+  'about.orchard': "乌节路禁烟区边界：环境局（OneMap），环境局最近于 2024 年 2 月 1 日更改",
+  'about.sources': "资料来源：环境局、OpenStreetMap 贡献者、OneMap（新加坡土地管理局）、樟宜机场",
+  'about.version': "应用版本 {v}",
 }

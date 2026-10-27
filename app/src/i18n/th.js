@@ -246,4 +246,13 @@ export default {
   'report.backToApp': "กลับไปที่แอป",
   'check.wrongAnswer': "คำตอบดูไม่ถูกต้อง? บอกเรา",
   'rules.report': "แอปมีปัญหา? แจ้งปัญหา",
+
+  'privacy.title': "ความเป็นส่วนตัวและข้อกำหนด",
+  'privacy.englishOnly': "หน้านี้มีเฉพาะภาษาอังกฤษ และให้ถือฉบับภาษาอังกฤษเป็นหลัก",
+  'privacy.link': "ความเป็นส่วนตัวและข้อกำหนด",
+  'about.title': "เกี่ยวกับข้อมูล",
+  'about.updated': "อัปเดตข้อมูลกฎเมื่อ {date}",
+  'about.orchard': "ขอบเขตเขตห้ามสูบบุหรี่ถนนออร์ชาร์ด: NEA (OneMap) แก้ไขล่าสุดโดย NEA เมื่อ 1 ก.พ. 2024",
+  'about.sources': "ที่มา: NEA, ผู้ร่วมพัฒนา OpenStreetMap, OneMap (SLA), สนามบินชางงี",
+  'about.version': "เวอร์ชันแอป {v}",
 }

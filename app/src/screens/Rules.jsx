@@ -1,5 +1,7 @@
 import { RULES, NEA_SOURCE } from '../../../src/rules.js'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { fetchMeta } from '../api.js'
 import { LanguagePicker, useI18n } from '../i18n/index.jsx'
 
 // Same rules the checker uses, so the guide and the answers never disagree.
@@ -14,6 +16,35 @@ function Section({ title, children }) {
       <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">{title}</h2>
       <div className="mt-2 overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-stone-900">{children}</div>
     </section>
+  )
+}
+
+// Data date (from the server), boundary source and app version.
+function AboutData() {
+  const { t, lang } = useI18n()
+  const [meta, setMeta] = useState(null)
+  useEffect(() => {
+    fetchMeta()
+      .then(setMeta)
+      .catch(() => {}) // the section still shows sources and version
+  }, [])
+  const date = meta?.importedAt
+    ? new Date(meta.importedAt).toLocaleDateString(lang === 'th' ? 'th-TH' : `${lang}-SG`, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'Asia/Singapore',
+      })
+    : null
+  return (
+    <Section title={t('about.title')}>
+      <ul className="divide-y divide-stone-200 text-sm dark:divide-stone-800">
+        {date && <li className="px-4 py-3">{t('about.updated', { date })}</li>}
+        <li className="px-4 py-3">{t('about.orchard')}</li>
+        <li className="px-4 py-3">{t('about.sources')}</li>
+        <li className="px-4 py-3 text-stone-500 dark:text-stone-400">{t('about.version', { v: __APP_VERSION__ })}</li>
+      </ul>
+    </Section>
   )
 }
 
@@ -67,6 +98,8 @@ export default function Rules() {
         </ul>
       </Section>
 
+      <AboutData />
+
       <p className="mt-6 text-xs text-stone-500 dark:text-stone-400">
         {t('disclaimer')} {t('rules.source')}{' '}
         <a href={NEA_SOURCE} target="_blank" rel="noopener noreferrer" className="underline">
@@ -74,7 +107,12 @@ export default function Rules() {
         </a>
         . {t('rules.owners')}
       </p>
-      <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">{t('rules.privacy')}</p>
+      <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">
+        {t('rules.privacy')}{' '}
+        <Link to="/privacy" className="underline">
+          {t('privacy.link')}
+        </Link>
+      </p>
       <p className="mt-3 text-sm">
         <Link to="/report" className="font-medium text-go underline dark:text-go-dark">
           {t('rules.report')}

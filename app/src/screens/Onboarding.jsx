@@ -1,11 +1,21 @@
 import { useState } from 'react'
 import { LanguagePicker, useI18n } from '../i18n/index.jsx'
+import { Privacy } from './Privacy.jsx'
 
 const POINTS = ['onb.p1', 'onb.p2', 'onb.p3']
 
 export default function Onboarding({ onConfirm }) {
   const { t } = useI18n()
   const [underAge, setUnderAge] = useState(false)
+  const [showPrivacy, setShowPrivacy] = useState(false)
+
+  if (showPrivacy) {
+    return (
+      <div className="mx-auto max-w-lg">
+        <Privacy onBack={() => setShowPrivacy(false)} />
+      </div>
+    )
+  }
 
   if (underAge) {
     return (
@@ -37,7 +47,12 @@ export default function Onboarding({ onConfirm }) {
         ))}
       </ul>
 
-      <p className="mt-8 text-xs text-stone-500 dark:text-stone-400">{t('onb.guidance')}</p>
+      <p className="mt-8 text-xs text-stone-500 dark:text-stone-400">
+        {t('onb.guidance')}{' '}
+        <button type="button" onClick={() => setShowPrivacy(true)} className="underline">
+          {t('privacy.link')}
+        </button>
+      </p>
 
       <div className="mt-auto space-y-3 pt-8">
         <button
