@@ -205,7 +205,7 @@ export default {
   'alerts.privacy': "Semasa makluman dihidupkan, tempat yang anda simpan disimpan di pelayan kami supaya kami boleh menyemaknya. Mematikan makluman akan memadamkannya.",
   'alerts.turnOn': "Hidupkan makluman",
   'alerts.turnOff': "Matikan",
-  'alerts.on': "Makluman dihidupkan untuk {n} tempat yang disimpan",
+  'alerts.on': "Makluman dihidupkan (tempat disimpan: {n})",
   'alerts.working': "Sebentar…",
   'alerts.iosHint': "Di iPhone, tambahkan aplikasi ini ke Skrin Utama dahulu (Kongsi, kemudian Tambah ke Skrin Utama).",
   'alerts.denied': "Pemberitahuan disekat untuk laman ini. Benarkannya dalam tetapan pelayar anda.",

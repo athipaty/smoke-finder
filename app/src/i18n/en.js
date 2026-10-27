@@ -166,7 +166,7 @@ export default {
   'alerts.privacy': "While alerts are on, your saved spots are stored on our server so we can check them. Turning alerts off deletes them.",
   'alerts.turnOn': "Turn on alerts",
   'alerts.turnOff': "Turn off",
-  'alerts.on': "Alerts on for {n} saved spots",
+  'alerts.on': "Alerts on (saved spots: {n})",
   'alerts.working': "One moment…",
   'alerts.iosHint': "On iPhone, first add this app to your Home Screen (Share, then Add to Home Screen).",
   'alerts.denied': "Notifications are blocked for this site. Allow them in your browser settings.",
