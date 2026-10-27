@@ -228,4 +228,22 @@ export default {
 
   'common.approxMin': "~{n} นาที",
   'detail.walkRoute': "เดิน {n} นาที · {d}",
+
+  'report.title': "แจ้งปัญหา",
+  'report.kind': "เกี่ยวกับอะไร?",
+  'report.k.wrong_answer': "คำตอบดูไม่ถูกต้อง",
+  'report.k.spot': "จุดหรือรูปภาพ",
+  'report.k.app': "ปัญหาในแอป",
+  'report.k.other': "อื่น ๆ",
+  'report.message': "เล่าเพิ่มเติม",
+  'report.messageHint': "เช่น ตรงนี้มีป้ายห้ามสูบบุหรี่",
+  'report.includeLocation': "แนบตำแหน่งของฉัน ({lat}, {lng})",
+  'report.locationNote': "ช่วยให้เราตรวจสอบสถานที่นี้ได้ ส่งเฉพาะเมื่อติ๊กเลือก",
+  'report.answerWas': "แอปแสดงว่า: {verdict}",
+  'report.send': "ส่งรายงาน",
+  'report.sending': "กำลังส่ง…",
+  'report.thanks': "ขอบคุณ! เราจะตรวจสอบให้",
+  'report.backToApp': "กลับไปที่แอป",
+  'check.wrongAnswer': "คำตอบดูไม่ถูกต้อง? บอกเรา",
+  'rules.report': "แอปมีปัญหา? แจ้งปัญหา",
 }

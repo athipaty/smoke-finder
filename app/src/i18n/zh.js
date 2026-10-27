@@ -228,4 +228,22 @@ export default {
 
   'common.approxMin': "约 {n} 分钟",
   'detail.walkRoute': "步行 {n} 分钟 · {d}",
+
+  'report.title': "报告问题",
+  'report.kind': "是关于什么的？",
+  'report.k.wrong_answer': "答案看起来不对",
+  'report.k.spot': "某个地点或照片",
+  'report.k.app': "应用里的问题",
+  'report.k.other': "其他",
+  'report.message': "请告诉我们更多",
+  'report.messageHint': "例如：这里有禁烟告示",
+  'report.includeLocation': "附上我的位置（{lat}, {lng}）",
+  'report.locationNote': "帮助我们核查这个地方。只有勾选时才会发送。",
+  'report.answerWas': "应用显示：{verdict}",
+  'report.send': "发送报告",
+  'report.sending': "正在发送…",
+  'report.thanks': "谢谢！我们会跟进。",
+  'report.backToApp': "返回应用",
+  'check.wrongAnswer': "答案看起来不对？告诉我们",
+  'rules.report': "应用有问题？报告问题",
 }

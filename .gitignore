@@ -3,3 +3,4 @@ node_modules/
 data/raw/
 data/zones.json
 app/dist/
+translations-review.csv

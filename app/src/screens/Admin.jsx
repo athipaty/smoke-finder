@@ -3,6 +3,7 @@ import { admin } from '../api.js'
 import { featureText, sinceText } from '../format.js'
 import { useI18n } from '../i18n/index.jsx'
 import MetricsView from '../components/MetricsView.jsx'
+import ReportsView from '../components/ReportsView.jsx'
 
 const FILTERS = [
   { id: 'review', label: 'Needs review' },
@@ -181,6 +182,7 @@ export default function Admin() {
       <div className="mt-3 flex rounded-xl bg-stone-200 p-1 text-sm font-medium dark:bg-stone-800" role="tablist">
         {[
           { id: 'spots', label: 'Spots' },
+          { id: 'reports', label: 'Reports' },
           { id: 'metrics', label: 'Metrics' },
         ].map((v) => (
           <button
@@ -198,6 +200,8 @@ export default function Admin() {
 
       {view === 'metrics' ? (
         <MetricsView />
+      ) : view === 'reports' ? (
+        <ReportsView />
       ) : (
         <>
           <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">

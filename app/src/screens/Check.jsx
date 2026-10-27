@@ -49,6 +49,15 @@ export default function Check() {
 
       <div className="mt-6">
         {result && <VerdictCard result={result} />}
+        {result && (
+          <Link
+            to="/report"
+            state={{ kind: 'wrong_answer', result, coords: geo.coords }}
+            className="mt-2 block text-right text-xs text-stone-500 underline dark:text-stone-400"
+          >
+            {t('check.wrongAnswer')}
+          </Link>
+        )}
         {terminal && <ChangiCard key={terminal} terminal={terminal} />}
 
         {busy && (

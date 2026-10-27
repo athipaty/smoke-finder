@@ -15,7 +15,8 @@
     "check": "node src/cli.js",
     "spotcheck": "node scripts/spotcheck.js",
     "test": "node --test",
-    "fetch:nsz": "node --env-file-if-exists=.env scripts/fetch-nsz.js"
+    "fetch:nsz": "node --env-file-if-exists=.env scripts/fetch-nsz.js",
+    "export:translations": "node scripts/export-translations.js"
   },
   "devDependencies": {
     "mongodb": "^6.10.0"

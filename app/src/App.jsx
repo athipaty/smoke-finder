@@ -13,6 +13,7 @@ import SpotDetail from './screens/SpotDetail.jsx'
 import Rules from './screens/Rules.jsx'
 import AddSpot from './screens/AddSpot.jsx'
 import Admin from './screens/Admin.jsx'
+import Report from './screens/Report.jsx'
 
 // Today's date in Singapore, to ping at most once a day.
 const sgToday = () => new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
@@ -41,6 +42,7 @@ export default function App() {
                   <Route path="/spot" element={<SpotDetail />} />
                   <Route path="/add" element={<AddSpot />} />
                   <Route path="/admin" element={<Admin />} />
+                  <Route path="/report" element={<Report />} />
                   <Route path="/rules" element={<Rules />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

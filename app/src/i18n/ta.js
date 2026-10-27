@@ -228,4 +228,22 @@ export default {
 
   'common.approxMin': "~{n} நிமி",
   'detail.walkRoute': "{n} நிமிட நடை · {d}",
+
+  'report.title': "சிக்கலைப் புகாரளி",
+  'report.kind': "இது எதைப் பற்றியது?",
+  'report.k.wrong_answer': "பதில் தவறாகத் தெரிகிறது",
+  'report.k.spot': "ஒரு இடம் அல்லது புகைப்படம்",
+  'report.k.app': "செயலியில் ஏதோ ஒன்று",
+  'report.k.other': "வேறு ஏதாவது",
+  'report.message': "மேலும் சொல்லுங்கள்",
+  'report.messageHint': "எ.கா. இங்கே புகைபிடித்தல் தடை அறிவிப்பு உள்ளது",
+  'report.includeLocation': "என் இருப்பிடத்தைச் சேர் ({lat}, {lng})",
+  'report.locationNote': "இந்த இடத்தைச் சரிபார்க்க உதவும். தேர்ந்தெடுத்தால் மட்டுமே அனுப்பப்படும்.",
+  'report.answerWas': "செயலி காட்டியது: {verdict}",
+  'report.send': "புகாரை அனுப்பு",
+  'report.sending': "அனுப்புகிறது…",
+  'report.thanks': "நன்றி! நாங்கள் இதைப் பார்க்கிறோம்.",
+  'report.backToApp': "செயலிக்குத் திரும்பு",
+  'check.wrongAnswer': "பதில் தவறாகத் தெரிகிறதா? எங்களிடம் சொல்லுங்கள்",
+  'rules.report': "செயலியில் ஏதாவது தவறா? சிக்கலைப் புகாரளி",
 }

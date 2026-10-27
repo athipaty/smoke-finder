@@ -1,4 +1,5 @@
 import { RULES, NEA_SOURCE } from '../../../src/rules.js'
+import { Link } from 'react-router-dom'
 import { LanguagePicker, useI18n } from '../i18n/index.jsx'
 
 // Same rules the checker uses, so the guide and the answers never disagree.
@@ -74,6 +75,11 @@ export default function Rules() {
         . {t('rules.owners')}
       </p>
       <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">{t('rules.privacy')}</p>
+      <p className="mt-3 text-sm">
+        <Link to="/report" className="font-medium text-go underline dark:text-go-dark">
+          {t('rules.report')}
+        </Link>
+      </p>
       <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">
         {t('rules.quit')}{' '}
         <a href="https://www.healthhub.sg/programmes/iquit" target="_blank" rel="noopener noreferrer" className="underline">

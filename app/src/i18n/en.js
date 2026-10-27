@@ -189,4 +189,22 @@ export default {
 
   'common.approxMin': "~{n} min",
   'detail.walkRoute': "{n} min walk · {d}",
+
+  'report.title': "Report a problem",
+  'report.kind': "What is it about?",
+  'report.k.wrong_answer': "The answer looks wrong",
+  'report.k.spot': "A spot or photo",
+  'report.k.app': "Something in the app",
+  'report.k.other': "Something else",
+  'report.message': "Tell us more",
+  'report.messageHint': "e.g. There is a no-smoking sign here",
+  'report.includeLocation': "Include my location ({lat}, {lng})",
+  'report.locationNote': "Helps us check this place. Only sent if ticked.",
+  'report.answerWas': "The app said: {verdict}",
+  'report.send': "Send report",
+  'report.sending': "Sending…",
+  'report.thanks': "Thanks! We'll look into it.",
+  'report.backToApp': "Back to the app",
+  'check.wrongAnswer': "Answer looks wrong? Tell us",
+  'rules.report': "Something wrong in the app? Report a problem",
 }

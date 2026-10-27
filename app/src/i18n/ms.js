@@ -228,4 +228,22 @@ export default {
 
   'common.approxMin': "~{n} min",
   'detail.walkRoute': "{n} min berjalan kaki · {d}",
+
+  'report.title': "Laporkan masalah",
+  'report.kind': "Tentang apa?",
+  'report.k.wrong_answer': "Jawapan nampak salah",
+  'report.k.spot': "Tempat atau foto",
+  'report.k.app': "Sesuatu dalam aplikasi",
+  'report.k.other': "Perkara lain",
+  'report.message': "Beritahu kami lebih lanjut",
+  'report.messageHint': "cth. Ada papan tanda larangan merokok di sini",
+  'report.includeLocation': "Sertakan lokasi saya ({lat}, {lng})",
+  'report.locationNote': "Membantu kami menyemak tempat ini. Hanya dihantar jika ditanda.",
+  'report.answerWas': "Aplikasi menunjukkan: {verdict}",
+  'report.send': "Hantar laporan",
+  'report.sending': "Menghantar…",
+  'report.thanks': "Terima kasih! Kami akan menyemaknya.",
+  'report.backToApp': "Kembali ke aplikasi",
+  'check.wrongAnswer': "Jawapan nampak salah? Beritahu kami",
+  'rules.report': "Ada masalah dalam aplikasi? Laporkan masalah",
 }

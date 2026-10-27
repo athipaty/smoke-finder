@@ -32,6 +32,10 @@ export const fetchDsas = () => request('/dsas')
 export const fetchRoute = (from, to) =>
   request('/route', { params: { from: `${from.lat},${from.lng}`, to: `${to.lat},${to.lng}` } })
 
+// "Report a problem". report: { kind, message, lat?, lng?, verdict?, rules?, lang }
+export const sendReport = (report) =>
+  request('/reports', { method: 'POST', device: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(report) })
+
 // Once a day per device: "the app was opened" (no location).
 export const ping = () => request('/ping', { method: 'POST', device: true })
 
