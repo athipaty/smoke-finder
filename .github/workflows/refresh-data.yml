@@ -33,6 +33,7 @@ jobs:
 
       - name: Fetch NEA and OpenStreetMap data
         run: npm run fetch
+        timeout-minutes: 120 # past this a server is stuck; failing beats waiting 5 hours
 
       - name: Build zones
         run: npm run build:data

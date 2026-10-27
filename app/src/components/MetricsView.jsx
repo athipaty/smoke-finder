@@ -12,6 +12,9 @@ const TILES = [
   { key: 'reportsPer100Views', label: 'Gone / not-allowed reports per 100 views (7 days)', unit: '' },
 ]
 
+// The weekly refresh runs every Monday; more than this means it has failed.
+const STALE_DAYS = 9
+
 const shortDay = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 
 function Tile({ label, unit, metric }) {
@@ -81,8 +84,19 @@ export default function MetricsView() {
   if (state.status === 'error') return <p className="mt-4 text-stop dark:text-stop-dark" role="alert">{state.error}</p>
 
   const { targets, days, spots, data } = state.data
+  const ageDays = data.importedAt ? Math.floor((Date.now() - new Date(data.importedAt)) / 86_400_000) : null
   return (
     <div className="mt-4 space-y-4">
+      {(ageDays === null || ageDays > STALE_DAYS) && (
+        <p className="rounded-2xl bg-amber-100 p-4 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100" role="alert">
+          <span className="font-semibold">⚠ Rules data is {ageDays === null ? 'missing' : `${ageDays} days old`}.</span> The weekly refresh
+          (GitHub Actions, “Refresh data”) has probably failed.{' '}
+          <a href="https://github.com/athipaty/smoke-finder/actions/workflows/refresh-data.yml" target="_blank" rel="noopener noreferrer" className="underline">
+            See the runs on GitHub
+          </a>
+          .
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3">
         {TILES.map((tile) => (
           <Tile key={tile.key} label={tile.label} unit={tile.unit} metric={targets[tile.key]} />

@@ -20,6 +20,9 @@ const TILE_COLS = 4
 
 const exists = (path) => access(path).then(() => true, () => false)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+// A server that stops answering mid-download would otherwise hang the job for
+// hours; give up on the request and try the other server instead.
+const REQUEST_TIMEOUT_MS = 5 * 60_000
 
 async function overpass(query, attempts = 15) {
   for (let i = 1; i <= attempts; i++) {
@@ -28,15 +31,27 @@ async function overpass(query, attempts = 15) {
       method: 'POST',
       headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
       body: new URLSearchParams({ data: query }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     }).catch((err) => ({ ok: false, status: 0, text: async () => err.message }))
-    if (res.ok) return res.json()
+    if (res.ok) {
+      // The body can stall too; the same timeout signal covers reading it.
+      const body = await res.json().catch((err) => ({ failed: `stopped mid-download: ${err.message}` }))
+      // Overpass answers 200 with partial data and a "runtime error" remark
+      // when a query runs out of time or memory. Never keep that.
+      if (/runtime error/i.test(body.remark ?? '')) body.failed = `incomplete answer: ${body.remark.slice(0, 120)}`
+      if (!body.failed) return body
+      if (i === attempts) throw new Error(`Overpass ${new URL(server).host}: ${body.failed}`)
+      console.log(`  ${new URL(server).host} ${body.failed}, retrying`)
+      continue
+    }
     if (i === attempts || ![0, 429, 502, 503, 504].includes(res.status)) {
       throw new Error(`Overpass ${res.status}: ${(await res.text()).slice(0, 200)}`)
     }
     const wait = Math.min(15 * i, 120)
-    console.log(`  ${new URL(server).host} busy (${res.status}), retrying in ${wait}s`)
+    console.log(`  ${new URL(server).host} ${res.status ? `busy (${res.status})` : `unreachable (${(await res.text()).slice(0, 80)})`}, retrying in ${wait}s`)
     await sleep(wait * 1000)
   }
+  throw new Error('Overpass: out of attempts')
 }
 
 async function save(name, fetcher) {
