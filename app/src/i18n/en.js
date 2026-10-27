@@ -219,4 +219,11 @@ export default {
   'common.offline': "No internet connection. Try again when you have signal.",
   'common.noServer': "Can't reach the server. Check your connection and try again.",
   'near.offline': "No connection. Showing places saved at {when}. Distances are from where you are now.",
+  'install.title': "Add to your home screen",
+  'install.body': "Open it in one tap, full screen. It also opens without signal.",
+  'install.button': "Install",
+  'install.later': "Not now",
+  'install.ok': "OK",
+  'install.iosBefore': "In Safari, tap Share",
+  'install.iosAfter': ", then “Add to Home Screen”.",
 }

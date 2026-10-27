@@ -21,6 +21,7 @@ export const KEYS = {
   deviceId: 'sf.deviceId',
   shelteredOnly: 'sf.shelteredOnly',
   lastPing: 'sf.lastPing',
+  installSnoozed: 'sf.installSnoozed',
   lastNearby: 'sf.lastNearby', // last Nearby results, for use without signal
 }
 

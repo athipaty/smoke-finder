@@ -6,6 +6,7 @@ import { load, KEYS } from '../storage.js'
 import { useI18n } from '../i18n/index.jsx'
 import VerdictCard from '../components/VerdictCard.jsx'
 import ChangiCard from '../components/ChangiCard.jsx'
+import InstallCard from '../components/InstallCard.jsx'
 import { terminalFor } from '../../../src/changi.js'
 
 const SLOW_MS = 3000 // the backend can take a while to wake up
@@ -106,6 +107,12 @@ export default function Check() {
           {result ? t('check.again') : t('check.mine')}
         </button>
       </div>
+      {/* Offered once the app has been useful, below the main buttons. */}
+      {result && (
+        <div className="-mt-1 pb-4">
+          <InstallCard />
+        </div>
+      )}
     </main>
   )
 }

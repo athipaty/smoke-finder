@@ -258,4 +258,11 @@ export default {
   'common.offline': "没有网络连接。有信号时请再试一次。",
   'common.noServer': "无法连接服务器。请检查网络后再试。",
   'near.offline': "没有网络。显示 {when} 保存的地点，距离按您现在的位置计算。",
+  'install.title': "添加到主屏幕",
+  'install.body': "一键打开，全屏显示，没有信号也能打开。",
+  'install.button': "安装",
+  'install.later': "以后再说",
+  'install.ok': "好的",
+  'install.iosBefore': "在 Safari 中点击“分享”",
+  'install.iosAfter': "，然后选择“添加到主屏幕”。",
 }

@@ -25,7 +25,7 @@ const WHERE = {
   feature: 'Spot features', kind: 'Spot details', detail: 'Spot details', vote: 'Spot details (votes)', since: 'Dates',
   add: 'Add a spot', rules: 'Rules screen', rule: 'Rules screen and Check answer (legal text)', notify: 'Push notification',
   alerts: 'Alerts card', changi: 'Changi Airport card', report: 'Report a problem',
-  privacy: 'Privacy & terms page', about: 'Rules screen (About the data)',
+  privacy: 'Privacy & terms page', about: 'Rules screen (About the data)', install: 'Add to home screen card (Check screen)',
 }
 
 const dicts = Object.fromEntries(await Promise.all(LANGS.map(async ([id]) => [id, (await import(`../app/src/i18n/${id}.js`)).default])))

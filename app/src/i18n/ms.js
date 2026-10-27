@@ -258,4 +258,11 @@ export default {
   'common.offline': "Tiada sambungan internet. Cuba lagi apabila ada isyarat.",
   'common.noServer': "Tidak dapat menghubungi pelayan. Semak sambungan anda dan cuba lagi.",
   'near.offline': "Tiada sambungan. Menunjukkan tempat yang disimpan pada {when}. Jarak dikira dari tempat anda sekarang.",
+  'install.title': "Tambah ke skrin utama",
+  'install.body': "Buka dengan satu ketikan, skrin penuh. Ia juga boleh dibuka tanpa isyarat.",
+  'install.button': "Pasang",
+  'install.later': "Bukan sekarang",
+  'install.ok': "OK",
+  'install.iosBefore': "Dalam Safari, ketik Kongsi",
+  'install.iosAfter': ", kemudian “Tambah ke Skrin Utama”.",
 }
