@@ -3,6 +3,7 @@
 // rarely changes, so the weekly refresh doesn't need OneMap credentials).
 //
 //   ONEMAP_EMAIL=... ONEMAP_PASSWORD=... npm run fetch:nsz
+//   ONEMAP_TOKEN=... npm run fetch:nsz     (an access token instead; lasts 3 days)
 //   npm run fetch:nsz -- --list     only list the themes that mention smoking
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -10,9 +11,9 @@ import { join } from 'node:path'
 const API = 'https://www.onemap.gov.sg/api'
 const OUT = join(import.meta.dirname, '..', 'data', 'orchard-nsz.json')
 
-const { ONEMAP_EMAIL: email, ONEMAP_PASSWORD: password } = process.env
-if (!email || !password) {
-  console.error('Set ONEMAP_EMAIL and ONEMAP_PASSWORD (e.g. in smoke-finder/.env).')
+const { ONEMAP_EMAIL: email, ONEMAP_PASSWORD: password, ONEMAP_TOKEN: givenToken } = process.env
+if (!givenToken && (!email || !password)) {
+  console.error('Set ONEMAP_TOKEN, or ONEMAP_EMAIL and ONEMAP_PASSWORD (e.g. in smoke-finder/.env).')
   process.exit(1)
 }
 
@@ -23,12 +24,30 @@ async function json(url, init) {
   return body
 }
 
-const { access_token: token } = await json(`${API}/auth/post/getToken`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password }),
-})
+const token =
+  givenToken ??
+  (
+    await json(`${API}/auth/post/getToken`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+  ).access_token
 const auth = { headers: { Authorization: token } }
+
+// OneMap polygons come as the text "[[lng,lat],...]" (as documented), as an
+// actual array of [lng, lat] (the nsz theme), or as a flat "lng,lat,..." list.
+// Returns [[lng, lat], ...].
+function parseLngLat(value) {
+  if (Array.isArray(value)) return value
+  const trimmed = String(value).trim()
+  if (trimmed.startsWith('[')) return JSON.parse(trimmed)
+  const nums = trimmed.split(',').map(Number)
+  if (nums.length % 2 || nums.some((n) => !Number.isFinite(n))) throw new Error('Unrecognised LatLng format')
+  const pairs = []
+  for (let i = 0; i < nums.length; i += 2) pairs.push([nums[i], nums[i + 1]])
+  return pairs
+}
 
 const { Theme_Names: themes = [] } = await json(`${API}/public/themesvc/getAllThemesInfo?moreInfo=Y`, auth)
 const smoking = themes.filter((t) => /smok/i.test(`${t.THEMENAME} ${t.QUERYNAME}`))
@@ -43,7 +62,7 @@ for (const t of candidates.length ? candidates : smoking) {
   const { SrchResults: results = [] } = await json(`${API}/public/themesvc/retrieveTheme?queryName=${encodeURIComponent(t.QUERYNAME)}`, auth)
   const polygons = results
     .filter((r) => r.Type === 'Polygon' && r.LatLng)
-    .map((r) => JSON.parse(r.LatLng).map(([lng, lat]) => [lat, lng])) // OneMap gives [lng, lat]
+    .map((r) => parseLngLat(r.LatLng).map(([lng, lat]) => [lat, lng])) // OneMap gives lng first
     .filter((poly) => poly.length >= 4)
   console.log(`  ${t.QUERYNAME}: ${results.length - 1} features, ${polygons.length} polygon(s)`)
   if (polygons.length && !picked) picked = { theme: t.QUERYNAME, themeName: t.THEMENAME, polygons }
