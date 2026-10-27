@@ -3,7 +3,7 @@ import { readFile, readdir, writeFile, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { RULES, RULES_BY_ID, buildingRuleFor } from '../src/rules.js'
 import { elementToZone } from '../src/osm.js'
-import { project, bboxOf, convexHull, inflateRing } from '../src/geo.js'
+import { project, bboxOf, convexHull, inflateRing, zoneDistance } from '../src/geo.js'
 
 const DATA = join(import.meta.dirname, '..', 'data')
 const RAW = join(DATA, 'raw')
@@ -29,7 +29,15 @@ for (const rule of RULES.filter((r) => r.query)) {
   }
 }
 
-// Buildings, deduplicated across tiles
+// Buildings, deduplicated across tiles and clipped to Singapore
+const sg = elementToZone((await readJson('osm-sg-boundary.json')).elements[0], { id: 'sg' })
+if (!sg) throw new Error('Could not assemble the Singapore boundary')
+const inSingapore = (zone) => {
+  const x = (zone.bbox[0] + zone.bbox[2]) / 2
+  const y = (zone.bbox[1] + zone.bbox[3]) / 2
+  return zoneDistance(x, y, sg) === 0
+}
+let outside = 0
 const seen = new Set()
 const tiles = (await readdir(RAW)).filter((f) => f.startsWith('osm-buildings-'))
 for (const file of tiles) {
@@ -39,9 +47,12 @@ for (const file of tiles) {
     const ruleId = buildingRuleFor(el.tags)
     if (!ruleId) continue
     const zone = elementToZone(el, { ...RULES_BY_ID[ruleId], geom: 'area' })
-    if (zone?.kind === 'poly') add(zone)
+    if (zone?.kind !== 'poly') continue
+    if (inSingapore(zone)) add(zone)
+    else outside++
   }
 }
+console.log(`Skipped ${outside} buildings outside Singapore (${sg.rings.length} boundary rings)`)
 
 // NEA designated smoking areas
 const dsaRaw = await readJson('nea-dsa.geojson')

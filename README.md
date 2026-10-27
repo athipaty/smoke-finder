@@ -8,7 +8,18 @@ npm run data          # fetch raw data (NEA + OpenStreetMap) and build data/zone
 npm run check -- 1.3039 103.8318 8   # lat lng [GPS accuracy in m]
 npm test              # unit tests (synthetic data, no network)
 npm run spotcheck     # real places against the built data
+npm run import        # load data/zones.json into MongoDB (needs MONGO_URI, e.g. in .env)
 ```
+
+## Where it runs
+
+- **API:** the center-kitchen backend serves `GET /api/smoke/check?lat=&lng=&acc=`,
+  plus `/api/smoke/dsas` and `/api/smoke/meta`. It installs this repo from GitHub
+  and runs `src/engine.js` on the zones near the point, read from MongoDB
+  (`smokezones`, `smokedsas`, `smokemeta`).
+- **Test page:** `public/index.html`, deployed by Vercel as a static site.
+- **Refreshing data:** run `npm run data` then `npm run import` on your machine.
+  The import swaps collections in one step, so the API never sees half a dataset.
 
 ## How a check works
 

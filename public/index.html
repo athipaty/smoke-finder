@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Can I Smoke Here?</title>
+  <meta name="description" content="Test page for the Singapore smoking-rules check (F1).">
+  <style>
+    :root {
+      --bg: #f6f6f4; --card: #ffffff; --ink: #1d1d1b; --quiet: #66665f; --line: #e2e2dc;
+      --green: #1f8a4c; --amber: #b7791f; --red: #c0392b; --accent: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #141413; --card: #1f1f1d; --ink: #f2f2ee; --quiet: #a3a39b; --line: #33332f;
+        --green: #3fb872; --amber: #e0a33a; --red: #e5604f; --accent: #6b9bff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 520px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    p.sub { margin: 0 0 20px; color: var(--quiet); font-size: 14px; }
+    button { font: inherit; cursor: pointer; border-radius: 12px; border: 0; }
+    #locate { width: 100%; padding: 16px; background: var(--accent); color: #fff; font-weight: 600; font-size: 18px; }
+    #locate:disabled { opacity: .6; cursor: wait; }
+    details { margin-top: 12px; font-size: 14px; color: var(--quiet); }
+    .manual { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-top: 8px; }
+    .manual input { min-width: 0; font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
+    .manual button { padding: 8px 12px; background: var(--line); color: var(--ink); }
+    #result { margin-top: 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; border-left: 8px solid var(--quiet); }
+    .card.green { border-left-color: var(--green); } .card.amber { border-left-color: var(--amber); } .card.red { border-left-color: var(--red); }
+    .verdict { font-size: 26px; font-weight: 700; margin: 0; }
+    .green .verdict { color: var(--green); } .amber .verdict { color: var(--amber); } .red .verdict { color: var(--red); }
+    .summary { margin: 8px 0 0; }
+    ul { margin: 12px 0 0; padding-left: 18px; font-size: 14px; color: var(--quiet); }
+    .meta { margin-top: 14px; font-size: 13px; color: var(--quiet); }
+    .error { color: var(--red); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Can I smoke here?</h1>
+  <p class="sub">Singapore only. Test page for the F1 check.</p>
+
+  <button id="locate">Check my location</button>
+
+  <details>
+    <summary>Enter coordinates instead</summary>
+    <form class="manual" id="manual">
+      <input id="lat" inputmode="decimal" placeholder="Lat 1.3039" aria-label="Latitude">
+      <input id="lng" inputmode="decimal" placeholder="Lng 103.8318" aria-label="Longitude">
+      <button type="submit">Check</button>
+    </form>
+  </details>
+
+  <div id="result" aria-live="polite"></div>
+</main>
+<script>
+  // ?api=http://localhost:5000/api/smoke to test against a local backend.
+  const API = new URLSearchParams(location.search).get('api') || 'https://center-kitchen-backend.onrender.com/api/smoke'
+  const result = document.getElementById('result')
+  const locate = document.getElementById('locate')
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
+
+  async function check(lat, lng, acc) {
+    result.innerHTML = '<p class="meta">Checking… (the server may take ~30 s to wake up)</p>'
+    try {
+      const params = new URLSearchParams({ lat, lng })
+      if (acc != null) params.set('acc', Math.round(acc))
+      const res = await fetch(`${API}/check?${params}`)
+      const body = await res.json()
+      if (!res.ok) throw new Error(body.error || res.statusText)
+      render(body, lat, lng)
+    } catch (err) {
+      result.innerHTML = `<p class="error">${esc(err.message)}</p>`
+    }
+  }
+
+  function render(r, lat, lng) {
+    const reasons = r.reasons.slice(0, 4).map((x) =>
+      `<li>${esc(x.label)}${x.name ? ` (${esc(x.name)})` : ''}: ${x.distanceM === 0 ? 'you are inside' : `${Math.round(x.distanceM)} m away`}</li>`).join('')
+    result.innerHTML = `
+      <div class="card ${esc(r.verdict)}">
+        <p class="verdict">${esc(r.headline)}</p>
+        <p class="summary">${esc(r.summary)}</p>
+        ${reasons ? `<ul>${reasons}</ul>` : ''}
+        ${r.fineNote ? `<p class="meta"><strong>${esc(r.fineNote)}</strong></p>` : ''}
+        <p class="meta">${esc(r.disclaimer)} <a href="${esc(r.source)}" target="_blank" rel="noopener">NEA rules</a><br>
+          ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}${r.accuracyM ? ` · GPS ±${Math.round(r.accuracyM)} m` : ''}</p>
+      </div>`
+  }
+
+  locate.addEventListener('click', () => {
+    if (!navigator.geolocation) return (result.innerHTML = '<p class="error">This browser has no GPS access.</p>')
+    locate.disabled = true
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { locate.disabled = false; check(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy) },
+      (err) => { locate.disabled = false; result.innerHTML = `<p class="error">${esc(err.message)}</p>` },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    )
+  })
+
+  document.getElementById('manual').addEventListener('submit', (e) => {
+    e.preventDefault()
+    const lat = parseFloat(document.getElementById('lat').value)
+    const lng = parseFloat(document.getElementById('lng').value)
+    if (Number.isFinite(lat) && Number.isFinite(lng)) check(lat, lng, null)
+  })
+</script>
+</body>
+</html>

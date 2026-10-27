@@ -6,7 +6,10 @@ import { RULES } from '../src/rules.js'
 
 const RAW = join(import.meta.dirname, '..', 'data', 'raw')
 const FORCE = process.argv.includes('--force')
-const OVERPASS = process.env.OVERPASS_URL ?? 'https://overpass-api.de/api/interpreter'
+// Tried in turn when one is busy. The mirror can lag the main server by weeks.
+const OVERPASS_SERVERS = process.env.OVERPASS_URL
+  ? [process.env.OVERPASS_URL]
+  : ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']
 const USER_AGENT = 'smoke-finder-sg/0.1 (data pipeline)'
 const NEA_DSA_DATASET = 'd_d0fa8f07ef80ab23feaa3b870323bf27'
 
@@ -18,19 +21,21 @@ const TILE_COLS = 4
 const exists = (path) => access(path).then(() => true, () => false)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-async function overpass(query, attempts = 5) {
+async function overpass(query, attempts = 8) {
   for (let i = 1; i <= attempts; i++) {
-    const res = await fetch(OVERPASS, {
+    const server = OVERPASS_SERVERS[(i - 1) % OVERPASS_SERVERS.length]
+    const res = await fetch(server, {
       method: 'POST',
       headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
       body: new URLSearchParams({ data: query }),
-    })
+    }).catch((err) => ({ ok: false, status: 0, text: async () => err.message }))
     if (res.ok) return res.json()
-    if (i === attempts || ![429, 502, 503, 504].includes(res.status)) {
+    if (i === attempts || ![0, 429, 502, 503, 504].includes(res.status)) {
       throw new Error(`Overpass ${res.status}: ${(await res.text()).slice(0, 200)}`)
     }
-    console.log(`  Overpass busy (${res.status}), retrying in ${15 * i}s`)
-    await sleep(15000 * i)
+    const wait = Math.min(15 * i, 60)
+    console.log(`  ${new URL(server).host} busy (${res.status}), retrying in ${wait}s`)
+    await sleep(wait * 1000)
   }
 }
 
@@ -67,6 +72,12 @@ for (const rule of RULES.filter((r) => r.query)) {
     overpass(`[out:json][timeout:180];area["ISO3166-1"="SG"][admin_level=2]->.sg;(${selectors});out geom;`),
   )
 }
+
+// The building tiles are rectangles that also catch Johor Bahru and Batam;
+// build-zones.js clips them to this boundary.
+await save('osm-sg-boundary.json', () =>
+  overpass('[out:json][timeout:180];rel["ISO3166-1"="SG"][admin_level=2];out geom;'),
+)
 
 const dLat = (SG_BBOX.n - SG_BBOX.s) / TILE_ROWS
 const dLng = (SG_BBOX.e - SG_BBOX.w) / TILE_COLS
