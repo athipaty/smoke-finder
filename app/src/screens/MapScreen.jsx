@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Circle, CircleMarker, Tooltip } from 'react-leaflet'
 import { useGeo } from '../geo.jsx'
 import { fetchNearby } from '../api.js'
@@ -10,6 +10,7 @@ import { load, save, KEYS } from '../storage.js'
 import SgMap from '../components/SgMap.jsx'
 import AlertsCard from '../components/AlertsCard.jsx'
 import ChangiCard from '../components/ChangiCard.jsx'
+import PlaceSearch from '../components/PlaceSearch.jsx'
 import { terminalFor } from '../../../src/changi.js'
 import { COLOURS } from '../colours.js'
 
@@ -64,6 +65,12 @@ export default function MapScreen() {
   const { geo, locate } = useGeo()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
+  const location = useLocation()
+  // A searched place replaces the user's position as the starting point. It
+  // lives in the history entry, so coming back from a spot keeps it.
+  const place = location.state?.place ?? null
+  const setPlace = (p) => navigate('/map', { replace: true, state: p ? { place: p } : null })
+  const [searching, setSearching] = useState(false)
   const favourites = useFavourites()
   // offlineAt: set when showing saved results because the server couldn't be reached
   const [state, setState] = useState({ status: 'idle', nearby: null, error: null, offlineAt: null })
@@ -77,25 +84,31 @@ export default function MapScreen() {
     if (geo.status === 'idle') locate()
   }, [geo.status, locate])
 
+  // Where distances are measured from: the searched place, or the user.
+  const origin = place ?? (geo.status === 'ready' ? geo.coords : null)
+  const originKey = origin ? `${origin.lat},${origin.lng}` : null
+  const isPlace = Boolean(place)
+
   useEffect(() => {
-    if (geo.status !== 'ready') return
+    if (!originKey) return
     let cancelled = false
+    const [lat, lng] = originKey.split(',').map(Number)
     setState({ status: 'loading', nearby: null, error: null, offlineAt: null })
-    fetchNearby(geo.coords)
+    fetchNearby({ lat, lng })
       .then((nearby) => {
-        saveNearby(nearby)
+        if (!isPlace) saveNearby(nearby) // the no-signal copy is for where the user is
         if (!cancelled) setState({ status: 'done', nearby, error: null, offlineAt: null })
       })
       .catch((err) => {
         if (cancelled) return
-        const saved = err.offline ? savedNearby(geo.coords) : null
+        const saved = err.offline && !isPlace ? savedNearby({ lat, lng }) : null
         if (saved) setState({ status: 'done', nearby: saved.nearby, error: null, offlineAt: saved.at })
         else setState({ status: 'error', nearby: null, error: err.message, offlineAt: null })
       })
     return () => {
       cancelled = true
     }
-  }, [geo.status, geo.at, geo.coords])
+  }, [originKey, isPlace, geo.at]) // geo.at: "Refresh" can return the same position
 
   const weather = state.nearby?.weather
   const shelteredOnly = shelteredChoice ?? Boolean(weather?.raining)
@@ -103,8 +116,13 @@ export default function MapScreen() {
   // In rain, hide only spots known to be uncovered. NEA areas (shelter unknown)
   // stay: in Orchard they're the only legal places at all.
   const spots = shelteredOnly ? allSpots.filter((s) => s.sheltered !== false) : allSpots
-  const you = geo.coords
+  const you = origin
   const open = (spot) => navigate('/spot', { state: { spot, from: you } })
+  const pick = (p) => {
+    setSearching(false)
+    setPlace(p)
+  }
+  const searchBox = searching && <PlaceSearch onPick={pick} onClose={() => setSearching(false)} />
   const saved = you
     ? favourites.list
         .map((f) => {
@@ -131,18 +149,30 @@ export default function MapScreen() {
             {t('common.useLocation')}
           </button>
         )}
+        {searching ? (
+          <div className="text-left">{searchBox}</div>
+        ) : (
+          <button type="button" onClick={() => setSearching(true)} className="mx-auto mt-4 text-sm font-medium text-go underline dark:text-go-dark">
+            {t('search.button')}
+          </button>
+        )}
       </main>
     )
   }
 
   const fit = [you, ...spots.filter((s) => s.distanceM <= MAX_FIT_M)]
-  const terminal = terminalFor(you)
+  const terminal = place ? null : terminalFor(you)
 
   return (
     <main className="flex flex-1 flex-col">
       <SgMap center={you} fit={fit} className="h-[42dvh] w-full">
-        <Circle center={[you.lat, you.lng]} radius={you.accuracy} pathOptions={{ color: COLOURS.you, weight: 1, fillOpacity: 0.08 }} />
-        <CircleMarker center={[you.lat, you.lng]} radius={8} pathOptions={{ color: '#fff', weight: 3, fillColor: COLOURS.you, fillOpacity: 1 }} />
+        {!place && <Circle center={[you.lat, you.lng]} radius={you.accuracy} pathOptions={{ color: COLOURS.you, weight: 1, fillOpacity: 0.08 }} />}
+        {/* A searched place is a hollow ring, so it doesn't look like "you are here". */}
+        <CircleMarker
+          center={[you.lat, you.lng]}
+          radius={8}
+          pathOptions={place ? { color: COLOURS.you, weight: 4, fillColor: '#fff', fillOpacity: 1 } : { color: '#fff', weight: 3, fillColor: COLOURS.you, fillOpacity: 1 }}
+        />
         {spots.map((s, i) => (
           <CircleMarker
             key={s.id}
@@ -160,16 +190,42 @@ export default function MapScreen() {
 
       <section className="flex-1 px-4 pt-4">
         <div className="flex items-center justify-between gap-2">
-          <h1 className="text-xl font-bold">{t('near.title')}</h1>
+          <h1 className="text-xl font-bold">{place ? t('search.title') : t('near.title')}</h1>
           <div className="flex shrink-0 items-center gap-4 text-sm font-medium">
-            <button type="button" onClick={locate} className="text-go dark:text-go-dark">
-              {t('near.refresh')}
+            <button type="button" onClick={() => setSearching((s) => !s)} aria-expanded={searching} className="text-go dark:text-go-dark">
+              {t('search.short')}
             </button>
+            {!place && (
+              <button type="button" onClick={locate} className="text-go dark:text-go-dark">
+                {t('near.refresh')}
+              </button>
+            )}
             <Link to="/add" className="rounded-full px-3 py-1.5 text-white" style={{ backgroundColor: COLOURS.community }} aria-label={t('near.addLabel')}>
               {t('near.add')}
             </Link>
           </div>
         </div>
+
+        {searchBox}
+
+        {place && (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-2.5 shadow-sm dark:bg-stone-900" role="status">
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">{t('search.near', { name: place.name })}</span>
+              {place.address && <span className="block truncate text-xs text-stone-500 dark:text-stone-400">{place.address}</span>}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setPlace(null)
+                if (geo.status !== 'ready') locate()
+              }}
+              className="shrink-0 text-sm font-medium text-go dark:text-go-dark"
+            >
+              {t('search.backToMe')}
+            </button>
+          </div>
+        )}
 
         {state.offlineAt && (
           <p className="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100" role="status">

@@ -40,6 +40,9 @@ export const fetchSpot = (id) => request(`/spots/${id}`, { device: true })
 
 export const fetchDsas = () => request('/dsas')
 
+// Places by name, address, postcode or MRT exit: { results: [{ name, address, lat, lng }] }
+export const searchPlaces = (q) => postJson('/search', { q })
+
 // When the rules data was built and imported, and its sources.
 export const fetchMeta = () => request('/meta')
 

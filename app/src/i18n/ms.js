@@ -274,4 +274,13 @@ export default {
   'busy.checkIn': "Saya di sini sekarang",
   'busy.leave': "Saya sudah pergi",
   'busy.thanks': "Terima kasih. Orang lain akan nampak anda di sini selama 1 jam.",
+  'search.button': "Cari tempat lain",
+  'search.short': "Cari",
+  'search.placeholder': "Tempat, alamat, poskod atau pintu keluar MRT",
+  'search.cancel': "Batal",
+  'search.searching': "Mencari…",
+  'search.none': "Tiada tempat dijumpai. Cuba nama lain atau poskod.",
+  'search.near': "Berhampiran {name}",
+  'search.backToMe': "Guna lokasi saya",
+  'search.title': "Tempat berhampiran lokasi ini",
 }

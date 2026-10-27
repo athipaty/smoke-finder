@@ -274,4 +274,13 @@ export default {
   'busy.checkIn': "ฉันอยู่ที่นี่ตอนนี้",
   'busy.leave': "ฉันออกไปแล้ว",
   'busy.thanks': "ขอบคุณ คนอื่นจะเห็นว่าคุณอยู่ที่นี่เป็นเวลา 1 ชั่วโมง",
+  'search.button': "ค้นหาสถานที่แทน",
+  'search.short': "ค้นหา",
+  'search.placeholder': "สถานที่ ที่อยู่ รหัสไปรษณีย์ หรือทางออก MRT",
+  'search.cancel': "ยกเลิก",
+  'search.searching': "กำลังค้นหา…",
+  'search.none': "ไม่พบสถานที่ ลองชื่ออื่นหรือรหัสไปรษณีย์",
+  'search.near': "ใกล้ {name}",
+  'search.backToMe': "ใช้ตำแหน่งของฉัน",
+  'search.title': "จุดใกล้สถานที่นี้",
 }

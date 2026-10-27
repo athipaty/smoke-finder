@@ -20,6 +20,7 @@ const SECTIONS = [
     body: [
       'When you check a spot, open Nearby, add a spot or ask for a walking route, the app sends your location to our server to look up the rules there. We do not keep it, except in the cases below.',
       'If you add a spot, its position is stored and shown to everyone. If you send a problem report and tick "Include my location", that location is stored with the report. If you turn on rule-change alerts, the positions of your saved spots are stored until you turn alerts off.',
+      'If you search for a place, the words you type are sent to our server and passed on to OneMap to find it. We do not keep them.',
       'Your location is sent inside the request, not in the web address, so it is not written to our hosting provider’s request logs. Those logs (kept for a short time by Render) contain technical details such as the time, the page asked for and the network (IP) address.',
     ],
   },

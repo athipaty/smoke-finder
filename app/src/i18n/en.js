@@ -235,4 +235,13 @@ export default {
   'busy.checkIn': "I'm here now",
   'busy.leave': "I've left",
   'busy.thanks': "Thanks. Others will see you here for 1 hour.",
+  'search.button': "Search a place instead",
+  'search.short': "Search",
+  'search.placeholder': "Place, address, postcode or MRT exit",
+  'search.cancel': "Cancel",
+  'search.searching': "Searching…",
+  'search.none': "No places found. Try another name or a postcode.",
+  'search.near': "Near {name}",
+  'search.backToMe': "Use my location",
+  'search.title': "Spots near this place",
 }

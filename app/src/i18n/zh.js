@@ -274,4 +274,13 @@ export default {
   'busy.checkIn': "我现在在这里",
   'busy.leave': "我已离开",
   'busy.thanks': "谢谢。其他人在 1 小时内会看到你在这里。",
+  'search.button': "改为搜索地点",
+  'search.short': "搜索",
+  'search.placeholder': "地点、地址、邮区编号或地铁出口",
+  'search.cancel': "取消",
+  'search.searching': "正在搜索…",
+  'search.none': "找不到地点。请试试其他名称或邮区编号。",
+  'search.near': "{name} 附近",
+  'search.backToMe': "用我的位置",
+  'search.title': "这个地点附近的地方",
 }
