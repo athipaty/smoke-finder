@@ -3,12 +3,17 @@
 # everyone's saved spots. Any failed step stops before the import, so the live
 # data is only replaced by a dataset that passed the tests and spot checks;
 # the import itself also refuses data that is much smaller than what's live.
+#
+# It wakes up daily but only refreshes when the last import is 6+ days old, so
+# a run that fails (usually busy Overpass servers) is retried the next day.
+# Downloaded files are cached between runs, so a retry continues where the
+# last run stopped instead of starting over.
 name: Refresh data
 
 on:
   schedule:
-    - cron: '0 18 * * 0' # Sundays 18:00 UTC = Mondays 02:00 Singapore
-  workflow_dispatch:
+    - cron: '0 18 * * *' # daily 18:00 UTC = 02:00 Singapore
+  workflow_dispatch: # a manual run always refreshes
 
 concurrency:
   group: refresh-data
@@ -24,32 +29,75 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore downloads from earlier runs
+        uses: actions/cache/restore@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
+          restore-keys: raw-
+
+      - name: Check whether a refresh is due
+        id: due
+        run: |
+          marker=data/raw/imported-at
+          if [ "${{ github.event_name }}" = schedule ] && [ -f $marker ] \
+             && [ $(( $(date +%s) - $(cat $marker) )) -lt $(( 6 * 86400 )) ]; then
+            echo "Last import $(date -u -d @$(cat $marker)), nothing to do yet."
+            echo "due=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "due=yes" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-node@v4
+        if: steps.due.outputs.due == 'yes'
         with:
           node-version: 22
           cache: npm
 
       - run: npm ci
+        if: steps.due.outputs.due == 'yes'
 
       - name: Fetch NEA and OpenStreetMap data
-        run: npm run fetch
-        timeout-minutes: 120 # past this a server is stuck; failing beats waiting 5 hours
+        id: fetch
+        if: steps.due.outputs.due == 'yes'
+        # Files from this week's earlier attempts are kept; older ones are fetched again.
+        run: npm run fetch -- --max-age-days=5
+        timeout-minutes: 200 # past this a server is stuck; tomorrow's run continues
+
+      - name: Keep downloads for the next run
+        if: always() && steps.due.outputs.due == 'yes'
+        uses: actions/cache/save@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}-${{ github.run_attempt }}-fetch
 
       - name: Build zones
+        if: steps.due.outputs.due == 'yes'
         run: npm run build:data
 
       - name: Unit tests
+        if: steps.due.outputs.due == 'yes'
         run: npm test
 
       - name: Spot-check real places
+        if: steps.due.outputs.due == 'yes'
         run: npm run spotcheck -- --strict
 
       - name: Import into MongoDB
+        if: steps.due.outputs.due == 'yes'
         run: |
           if [ -z "$MONGO_URI" ]; then
             echo "::warning::MONGO_URI secret is not set, so the import was skipped."
             exit 0
           fi
           npm run import
+          date +%s > data/raw/imported-at
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
+
+      - name: Remember the import
+        if: steps.due.outputs.due == 'yes' && hashFiles('data/raw/imported-at') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}-${{ github.run_attempt }}-done

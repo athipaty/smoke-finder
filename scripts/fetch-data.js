@@ -1,15 +1,22 @@
 // Downloads raw data into data/raw/. Re-running skips files that already
-// exist; pass --force to download everything again.
-import { mkdir, writeFile, access } from 'node:fs/promises'
+// exist; pass --force to download everything again, or --max-age-days=N to
+// download again only files older than N days (the weekly refresh resumes a
+// failed run this way instead of starting over).
+import { mkdir, writeFile, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { RULES } from '../src/rules.js'
 
 const RAW = join(import.meta.dirname, '..', 'data', 'raw')
 const FORCE = process.argv.includes('--force')
+const MAX_AGE_DAYS = Number(process.argv.find((a) => a.startsWith('--max-age-days='))?.split('=')[1] ?? Infinity)
 // Tried in turn when one is busy. The mirror can lag the main server by weeks.
 const OVERPASS_SERVERS = process.env.OVERPASS_URL
   ? [process.env.OVERPASS_URL]
-  : ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']
+  : [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+      'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+    ]
 const USER_AGENT = 'smoke-finder-sg/0.1 (data pipeline)'
 const NEA_DSA_DATASET = 'd_d0fa8f07ef80ab23feaa3b870323bf27'
 
@@ -18,7 +25,8 @@ const SG_BBOX = { s: 1.15, w: 103.59, n: 1.48, e: 104.1 }
 const TILE_ROWS = 3
 const TILE_COLS = 4
 
-const exists = (path) => access(path).then(() => true, () => false)
+// Age of a file in days, or null if it doesn't exist.
+const ageDays = (path) => stat(path).then((s) => (Date.now() - s.mtimeMs) / 86_400_000, () => null)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 // A server that stops answering mid-download would otherwise hang the job for
 // hours; give up on the request and try the other server instead.
@@ -56,8 +64,9 @@ async function overpass(query, attempts = 15) {
 
 async function save(name, fetcher) {
   const path = join(RAW, name)
-  if (!FORCE && (await exists(path))) {
-    console.log(`skip  ${name} (exists)`)
+  const age = await ageDays(path)
+  if (!FORCE && age !== null && age < MAX_AGE_DAYS) {
+    console.log(`skip  ${name} (${age.toFixed(1)} days old)`)
     return
   }
   const started = Date.now()
