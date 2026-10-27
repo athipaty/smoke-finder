@@ -1,5 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { load, save } from './storage.js'
+import { useI18n } from './i18n/index.jsx'
+import { spotTitle } from './format.js'
+import { alertsEnabled, syncAlerts } from './alerts.js'
 
 // Saved spots ("my office spot") live only on this phone. A saved spot is a
 // copy of what the app showed when it was saved; community spots are
@@ -25,8 +28,28 @@ function readAll() {
 
 const FavouritesContext = createContext(null)
 
+// What alerts need from each saved spot; labels are in the current language.
+export const alertPoints = (list, t) => list.map((f) => ({ key: f.key, label: spotTitle(f, t), lat: f.lat, lng: f.lng }))
+
+const SYNC_KEY = 'sf.alertsSynced'
+
 export function FavouritesProvider({ children }) {
   const [list, setList] = useState(readAll)
+  const { lang, t } = useI18n()
+
+  // With alerts on, keep the server's copy of the saved spots up to date.
+  useEffect(() => {
+    if (!alertsEnabled()) return
+    const points = alertPoints(list, t)
+    const signature = JSON.stringify([lang, points])
+    if (load(SYNC_KEY) === signature) return
+    const timer = setTimeout(() => {
+      syncAlerts(points, lang)
+        .then((r) => r && save(SYNC_KEY, signature))
+        .catch(() => {}) // try again next time something changes
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [list, lang, t])
 
   const update = useCallback((fn) => {
     setList((prev) => {

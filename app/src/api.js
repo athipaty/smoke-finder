@@ -35,6 +35,14 @@ export function addSpot(spot) {
   return request('/spots', { method: 'POST', body: form, device: true })
 }
 
+// Rule-change alerts (see alerts.js)
+export const alertsApi = {
+  key: () => request('/alerts/key'),
+  save: (body) =>
+    request('/alerts', { method: 'PUT', device: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  remove: () => request('/alerts', { method: 'DELETE', device: true }),
+}
+
 // Moderation. The token lives in sessionStorage, so closing the tab logs out.
 const ADMIN_TOKEN = 'sf.adminToken'
 const readToken = () => {

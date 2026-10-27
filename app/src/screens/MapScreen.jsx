@@ -8,6 +8,7 @@ import { useFavourites } from '../favourites.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import { load, save, KEYS } from '../storage.js'
 import SgMap from '../components/SgMap.jsx'
+import AlertsCard from '../components/AlertsCard.jsx'
 import { COLOURS } from '../colours.js'
 
 const MAX_FIT_M = 600 // don't zoom out for far-away spots; they're still in the list
@@ -149,6 +150,7 @@ export default function MapScreen() {
                 </li>
               ))}
             </ul>
+            <AlertsCard />
           </div>
         )}
 

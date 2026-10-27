@@ -1,7 +1,7 @@
 {
   "name": "smoke-finder",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "Singapore smoking spot finder: data pipeline and the F1 \"Can I smoke here?\" engine",
   "engines": {
