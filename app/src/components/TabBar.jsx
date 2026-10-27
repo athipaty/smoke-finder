@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useI18n } from '../i18n/index.jsx'
 
 const icon = {
   check: <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zm-3-11 2 2 4-4" />,
@@ -7,12 +8,13 @@ const icon = {
 }
 
 const TABS = [
-  { to: '/', label: 'Check', icon: icon.check, end: true },
-  { to: '/map', label: 'Nearby', icon: icon.map },
-  { to: '/rules', label: 'Rules', icon: icon.rules },
+  { to: '/', label: 'tab.check', icon: icon.check, end: true },
+  { to: '/map', label: 'tab.nearby', icon: icon.map },
+  { to: '/rules', label: 'tab.rules', icon: icon.rules },
 ]
 
 export default function TabBar() {
+  const { t } = useI18n()
   return (
     <nav
       aria-label="Main"
@@ -33,7 +35,7 @@ export default function TabBar() {
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 {tab.icon}
               </svg>
-              {tab.label}
+              {t(tab.label)}
             </NavLink>
           </li>
         ))}

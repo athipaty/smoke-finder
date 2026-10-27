@@ -7,16 +7,34 @@ export const titleCase = (s) =>
 
 export const distanceText = (m) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`)
 
-export function sinceText(date) {
-  const days = Math.floor((Date.now() - new Date(date).getTime()) / 86_400_000)
-  if (days < 1) return 'today'
-  if (days === 1) return 'yesterday'
-  if (days < 60) return `${days} days ago`
-  return `${Math.round(days / 30)} months ago`
+// Straight-line metres between two points; fine at Singapore's scale. Walking
+// time uses the same rough factors as the engine's nearby.js.
+export function metresBetween(a, b) {
+  const kx = 111320 * Math.cos((a.lat * Math.PI) / 180)
+  return Math.hypot((b.lng - a.lng) * kx, (b.lat - a.lat) * 110574)
+}
+export const walkMinutes = (m) => Math.max(1, Math.round((m * 1.3) / 80))
+
+// Built at display time (not stored), so saved spots follow a language change.
+export function spotTitle(spot, t) {
+  if (spot.kind === 'dsa') return titleCase(spot.name)
+  if (spot.kind === 'open') return t('spot.openTitle')
+  return spot.name ?? t('spot.communityTitle')
 }
 
-export const featureText = (s) =>
-  [s.sheltered && 'sheltered', s.hasAshtray && 'ashtray', s.hasSeating && 'seats'].filter(Boolean).join(' · ')
+// `t` is the i18n translate function (useI18n().t).
+export function sinceText(date, t) {
+  const days = Math.floor((Date.now() - new Date(date).getTime()) / 86_400_000)
+  if (days < 1) return t('since.today')
+  if (days === 1) return t('since.yesterday')
+  if (days < 60) return t('since.days', { n: days })
+  return t('since.months', { n: Math.round(days / 30) })
+}
+
+export const featureText = (s, t) =>
+  [s.sheltered && t('feature.sheltered'), s.hasAshtray && t('feature.ashtray'), s.hasSeating && t('feature.seats')]
+    .filter(Boolean)
+    .join(' · ')
 
 export const directionsUrl =({ lat, lng }) =>
   `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`

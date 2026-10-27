@@ -35,6 +35,47 @@ export function addSpot(spot) {
   return request('/spots', { method: 'POST', body: form, device: true })
 }
 
+// Moderation. The token lives in sessionStorage, so closing the tab logs out.
+const ADMIN_TOKEN = 'sf.adminToken'
+const readToken = () => {
+  try {
+    return sessionStorage.getItem(ADMIN_TOKEN)
+  } catch {
+    return null
+  }
+}
+const writeToken = (token) => {
+  try {
+    if (token) sessionStorage.setItem(ADMIN_TOKEN, token)
+    else sessionStorage.removeItem(ADMIN_TOKEN)
+  } catch {
+    // ignore: the moderator just logs in again
+  }
+}
+
+export const admin = {
+  loggedIn: () => Boolean(readToken()),
+  logout: () => writeToken(null),
+  async login(password) {
+    const { token } = await request('/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    })
+    writeToken(token)
+  },
+  call(path, { method = 'GET', body } = {}) {
+    return request(`/admin${path}`, {
+      method,
+      headers: { Authorization: `Bearer ${readToken()}`, ...(body && { 'Content-Type': 'application/json' }) },
+      ...(body && { body: JSON.stringify(body) }),
+    }).catch((err) => {
+      if (err.status === 401) writeToken(null)
+      throw err
+    })
+  },
+}
+
 // F6. type: 'here' | 'gone' | 'not_allowed' | 'bad_photo'
 export const voteSpot = (id, type) =>
   request(`/spots/${id}/vote`, {

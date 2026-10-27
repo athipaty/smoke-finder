@@ -2,49 +2,37 @@ import { useEffect, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { CircleMarker } from 'react-leaflet'
 import { fetchSpot, voteSpot } from '../api.js'
-import { directionsUrl, distanceText, featureText, sinceText } from '../format.js'
+import { directionsUrl, distanceText, featureText, sinceText, spotTitle } from '../format.js'
+import { useI18n } from '../i18n/index.jsx'
 import SgMap from '../components/SgMap.jsx'
 import { COLOURS } from '../colours.js'
-
-const KIND = {
-  dsa: {
-    badge: 'NEA designated smoking area',
-    note: 'An official smoking area. Smoke only inside the marked area.',
-  },
-  open: {
-    badge: 'Open area · rules allow',
-    note: 'Our data shows no no-smoking places right here. Stay 5 m from building entrances, bus stops and covered walkways, and follow any signs.',
-  },
-  community: {
-    badge: 'Added by people',
-    note: 'Added and checked by other users. It passed the NEA rules check when it was added, but follow any signs on site.',
-  },
-}
+import { useFavourites } from '../favourites.jsx'
 
 const VOTES = [
-  { type: 'here', label: 'Still here', done: 'Thanks for confirming.' },
-  { type: 'gone', label: 'Gone', done: "Thanks. After 3 reports it's hidden." },
-  { type: 'not_allowed', label: 'Not allowed here', done: "Thanks. After 3 reports it's hidden." },
+  { type: 'here', label: 'vote.here', done: 'vote.thanksHere' },
+  { type: 'gone', label: 'vote.gone', done: 'vote.thanksReport' },
+  { type: 'not_allowed', label: 'vote.notAllowed', done: 'vote.thanksReport' },
 ]
 
-function statusText(s) {
-  const confirmed = `Last confirmed ${sinceText(s.lastConfirmedAt)}`
-  if (s.stale) return `${confirmed} · may be out of date`
-  if (s.status === 'verified') return `Verified by ${s.hereCount} people · ${confirmed}`
-  return `Unverified · confirmed by ${s.hereCount} of 3 · ${confirmed}`
+function statusText(s, t) {
+  const confirmed = t('detail.lastConfirmed', { when: sinceText(s.lastConfirmedAt, t) })
+  if (s.stale) return `${confirmed} · ${t('detail.mayBeOld')}`
+  if (s.status === 'verified') return `${t('detail.verifiedBy', { n: s.hereCount })} · ${confirmed}`
+  return `${t('detail.unverifiedBy', { n: s.hereCount })} · ${confirmed}`
 }
 
 function CommunityActions({ spot, onChange }) {
+  const { t } = useI18n()
   const [busy, setBusy] = useState(null)
   const [message, setMessage] = useState(null)
 
-  const vote = async (type, done) => {
+  const vote = async (type, doneKey) => {
     setBusy(type)
     setMessage(null)
     try {
       const updated = await voteSpot(spot.id, type)
       onChange(updated)
-      setMessage(updated.status === 'hidden' ? 'Thanks. This spot is now hidden.' : done)
+      setMessage(updated.status === 'hidden' ? t('vote.hidden') : t(doneKey))
     } catch (err) {
       setMessage(err.message)
     } finally {
@@ -54,7 +42,7 @@ function CommunityActions({ spot, onChange }) {
 
   return (
     <div className="mt-5">
-      <p className="text-sm font-semibold">Is this spot still right?</p>
+      <p className="text-sm font-semibold">{t('vote.question')}</p>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {VOTES.map((v) => {
           const chosen = spot.myVote === v.type
@@ -66,12 +54,10 @@ function CommunityActions({ spot, onChange }) {
               aria-pressed={chosen}
               onClick={() => vote(v.type, v.done)}
               className={`rounded-xl px-2 py-3 text-sm font-medium active:opacity-80 disabled:opacity-60 ${
-                chosen
-                  ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-                  : 'bg-white shadow-sm dark:bg-stone-900'
+                chosen ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
               }`}
             >
-              {busy === v.type ? '…' : v.label}
+              {busy === v.type ? '…' : t(v.label)}
             </button>
           )
         })}
@@ -85,10 +71,10 @@ function CommunityActions({ spot, onChange }) {
         <button
           type="button"
           disabled={busy !== null}
-          onClick={() => vote('bad_photo', 'Thanks. The photo is hidden after 2 reports.')}
+          onClick={() => vote('bad_photo', 'vote.photoThanks')}
           className="mt-2 text-xs text-stone-500 underline dark:text-stone-400"
         >
-          Report photo (shows people or private property)
+          {t('vote.reportPhoto')}
         </button>
       )}
     </div>
@@ -98,7 +84,10 @@ function CommunityActions({ spot, onChange }) {
 export default function SpotDetail() {
   const { state } = useLocation()
   const navigate = useNavigate()
+  const { t } = useI18n()
+  const favourites = useFavourites()
   const [spot, setSpot] = useState(state?.spot ?? null)
+  const [removed, setRemoved] = useState(false)
 
   // Community spots change as people vote, so fetch the latest copy.
   useEffect(() => {
@@ -106,7 +95,7 @@ export default function SpotDetail() {
     let cancelled = false
     fetchSpot(state.spot.id)
       .then((fresh) => !cancelled && setSpot((s) => ({ ...s, ...fresh })))
-      .catch(() => {}) // keep showing what we have
+      .catch((err) => !cancelled && err.status === 404 && setRemoved(true)) // otherwise keep what we have
     return () => {
       cancelled = true
     }
@@ -115,9 +104,9 @@ export default function SpotDetail() {
   if (!spot) return <Navigate to="/map" replace />
 
   const { from } = state
-  const kind = KIND[spot.kind]
   const colour = COLOURS[spot.kind]
-  const features = spot.kind === 'community' ? featureText(spot) : ''
+  const title = spotTitle(spot, t)
+  const features = spot.kind === 'community' ? featureText(spot, t) : ''
 
   return (
     <main className="flex flex-1 flex-col">
@@ -131,31 +120,46 @@ export default function SpotDetail() {
           onClick={() => navigate(-1)}
           className="absolute left-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[400] rounded-full bg-white/95 px-4 py-2 text-sm font-semibold shadow dark:bg-stone-900/95"
         >
-          ‹ Back
+          {t('common.back')}
         </button>
       </div>
 
       <section className="flex flex-1 flex-col px-4 pt-4">
         <span className="self-start rounded-full px-3 py-1 text-xs font-semibold text-white" style={{ backgroundColor: colour }}>
-          {kind.badge}
+          {t(`kind.${spot.kind}.badge`)}
         </span>
-        <h1 className="mt-2 text-2xl font-bold">{spot.title}</h1>
-        {spot.kind === 'dsa' && spot.description && <p className="text-stone-600 dark:text-stone-300">{spot.description}</p>}
-        {features && <p className="capitalize text-stone-600 dark:text-stone-300">{features}</p>}
-        {spot.distanceM != null && (
-          <p className="mt-1 text-stone-500 dark:text-stone-400">
-            About {spot.walkMin} min walk · {distanceText(spot.distanceM)}
+        <div className="mt-2 flex items-start justify-between gap-3">
+          <h1 className="text-2xl font-bold">{title}</h1>
+          <button
+            type="button"
+            onClick={() => favourites.toggle(spot)}
+            aria-pressed={favourites.isSaved(spot)}
+            className="mt-1 shrink-0 rounded-full bg-white px-3 py-1.5 text-sm font-medium shadow-sm dark:bg-stone-900"
+          >
+            {favourites.isSaved(spot) ? t('detail.saved') : t('detail.save')}
+          </button>
+        </div>
+        {removed && (
+          <p className="mt-2 rounded-xl bg-amber-100 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100" role="status">
+            {t('detail.removed')}
           </p>
         )}
-        {spot.kind === 'community' && <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{statusText(spot)}</p>}
-
-        {spot.photo && (
-          <img src={spot.photo} alt={`Smoking spot: ${spot.title}`} loading="lazy" className="mt-4 h-44 w-full rounded-2xl object-cover" />
+        {spot.kind === 'dsa' && spot.description && <p className="text-stone-600 dark:text-stone-300">{spot.description}</p>}
+        {features && <p className="text-stone-600 first-letter:uppercase dark:text-stone-300">{features}</p>}
+        {spot.distanceM != null && (
+          <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walk', { n: spot.walkMin, d: distanceText(spot.distanceM) })}</p>
+        )}
+        {spot.kind === 'community' && !removed && spot.lastConfirmedAt && (
+          <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{statusText(spot, t)}</p>
         )}
 
-        <p className="mt-4 text-sm text-stone-600 dark:text-stone-300">{kind.note}</p>
+        {spot.photo && (
+          <img src={spot.photo} alt={t('detail.photoAlt', { name: title })} loading="lazy" className="mt-4 h-44 w-full rounded-2xl object-cover" />
+        )}
 
-        {spot.kind === 'community' && <CommunityActions spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />}
+        <p className="mt-4 text-sm text-stone-600 dark:text-stone-300">{t(`kind.${spot.kind}.note`)}</p>
+
+        {spot.kind === 'community' && !removed && <CommunityActions spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />}
 
         <div className="mt-auto pb-4 pt-6">
           <a
@@ -164,7 +168,7 @@ export default function SpotDetail() {
             rel="noopener noreferrer"
             className="block w-full rounded-xl bg-go py-4 text-center text-lg font-semibold text-white active:opacity-80 dark:bg-go-dark dark:text-stone-950"
           >
-            Walking directions
+            {t('detail.directions')}
           </a>
         </div>
       </section>

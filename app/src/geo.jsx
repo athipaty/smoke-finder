@@ -9,8 +9,9 @@ export function GeoProvider({ children }) {
   const [geo, setGeo] = useState({ status: 'idle', coords: null, error: null, at: 0 })
 
   const locate = useCallback(() => {
+    // `error` is an i18n key suffix: geo.noBrowser / geo.blocked / geo.failed
     if (!navigator.geolocation) {
-      setGeo((g) => ({ ...g, status: 'error', error: 'This browser has no location access.' }))
+      setGeo((g) => ({ ...g, status: 'error', error: 'noBrowser' }))
       return
     }
     setGeo((g) => ({ ...g, status: 'locating', error: null }))
@@ -26,13 +27,7 @@ export function GeoProvider({ children }) {
       },
       (err) => {
         const denied = err.code === err.PERMISSION_DENIED
-        setGeo((g) => ({
-          ...g,
-          status: denied ? 'denied' : 'error',
-          error: denied
-            ? 'Location is blocked. Allow it for this site in your browser settings, then try again.'
-            : "Couldn't get your location. Move to an open area and try again.",
-        }))
+        setGeo((g) => ({ ...g, status: denied ? 'denied' : 'error', error: denied ? 'blocked' : 'failed' }))
       },
       // maximumAge 0: "Check again" after a few steps must not reuse the previous fix.
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
