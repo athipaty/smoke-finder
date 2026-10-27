@@ -21,6 +21,7 @@ export const KEYS = {
   deviceId: 'sf.deviceId',
   shelteredOnly: 'sf.shelteredOnly',
   lastPing: 'sf.lastPing',
+  lastNearby: 'sf.lastNearby', // last Nearby results, for use without signal
 }
 
 // Random id so the server can count one vote per phone. It identifies nothing

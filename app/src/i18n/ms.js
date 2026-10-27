@@ -255,4 +255,7 @@ export default {
   'about.orchard': "Sempadan Zon Larangan Merokok Orchard Road: NEA (OneMap), kali terakhir diubah oleh NEA pada 1 Feb 2024",
   'about.sources': "Sumber: NEA, penyumbang OpenStreetMap, OneMap (SLA), Lapangan Terbang Changi",
   'about.version': "Versi aplikasi {v}",
+  'common.offline': "Tiada sambungan internet. Cuba lagi apabila ada isyarat.",
+  'common.noServer': "Tidak dapat menghubungi pelayan. Semak sambungan anda dan cuba lagi.",
+  'near.offline': "Tiada sambungan. Menunjukkan tempat yang disimpan pada {when}. Jarak dikira dari tempat anda sekarang.",
 }

@@ -20,7 +20,7 @@ const SECTIONS = [
     body: [
       'When you check a spot, open Nearby, add a spot or ask for a walking route, the app sends your location to our server to look up the rules there. We do not keep it, except in the cases below.',
       'If you add a spot, its position is stored and shown to everyone. If you send a problem report and tick "Include my location", that location is stored with the report. If you turn on rule-change alerts, the positions of your saved spots are stored until you turn alerts off.',
-      'Our hosting provider (Render) keeps short-term technical logs of requests to our server, and these can include the location that was checked.',
+      'Your location is sent inside the request, not in the web address, so it is not written to our hosting provider’s request logs. Those logs (kept for a short time by Render) contain technical details such as the time, the page asked for and the network (IP) address.',
     ],
   },
   {
@@ -44,7 +44,7 @@ const SECTIONS = [
   {
     title: 'Things kept only on your phone',
     body: [
-      'Your saved spots, language, your answer to the age question and similar settings stay in your browser on your phone. Clearing the browser data for this site removes them.',
+      'Your saved spots, language, your answer to the age question and similar settings stay in your browser on your phone. So does your last Nearby list (up to 7 days old), so it can be shown when you have no signal. Clearing the browser data for this site removes them.',
     ],
   },
   {

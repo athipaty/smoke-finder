@@ -35,12 +35,36 @@ function toSpots(nearby) {
   return [...open, ...dsas, ...community].sort((a, b) => a.distanceM - b.distanceM)
 }
 
+// Last good Nearby results, kept on the phone for when there's no signal.
+const MAX_SAVED_DAYS = 7
+function saveNearby(nearby) {
+  save(KEYS.lastNearby, JSON.stringify({ at: Date.now(), nearby: { ...nearby, weather: null } }))
+}
+function savedNearby(you) {
+  try {
+    const { at, nearby } = JSON.parse(load(KEYS.lastNearby))
+    if (Date.now() - at > MAX_SAVED_DAYS * 86_400_000) return null
+    // Distances were from where the user was then; work them out again.
+    const fromYou = (s) => {
+      const distanceM = Math.round(metresBetween(you, s))
+      return { ...s, distanceM, walkMin: walkMinutes(distanceM) }
+    }
+    return {
+      at,
+      nearby: { ...nearby, open: nearby.open.map(fromYou), dsas: nearby.dsas.map(fromYou), community: (nearby.community ?? []).map(fromYou) },
+    }
+  } catch {
+    return null
+  }
+}
+
 export default function MapScreen() {
   const { geo, locate } = useGeo()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const navigate = useNavigate()
   const favourites = useFavourites()
-  const [state, setState] = useState({ status: 'idle', nearby: null, error: null })
+  // offlineAt: set when showing saved results because the server couldn't be reached
+  const [state, setState] = useState({ status: 'idle', nearby: null, error: null, offlineAt: null })
   // null = follow the weather; true/false = the user's own choice
   const [shelteredChoice, setShelteredChoice] = useState(() => {
     const saved = load(KEYS.shelteredOnly)
@@ -54,10 +78,18 @@ export default function MapScreen() {
   useEffect(() => {
     if (geo.status !== 'ready') return
     let cancelled = false
-    setState({ status: 'loading', nearby: null, error: null })
+    setState({ status: 'loading', nearby: null, error: null, offlineAt: null })
     fetchNearby(geo.coords)
-      .then((nearby) => !cancelled && setState({ status: 'done', nearby, error: null }))
-      .catch((err) => !cancelled && setState({ status: 'error', nearby: null, error: err.message }))
+      .then((nearby) => {
+        saveNearby(nearby)
+        if (!cancelled) setState({ status: 'done', nearby, error: null, offlineAt: null })
+      })
+      .catch((err) => {
+        if (cancelled) return
+        const saved = err.offline ? savedNearby(geo.coords) : null
+        if (saved) setState({ status: 'done', nearby: saved.nearby, error: null, offlineAt: saved.at })
+        else setState({ status: 'error', nearby: null, error: err.message, offlineAt: null })
+      })
     return () => {
       cancelled = true
     }
@@ -136,6 +168,18 @@ export default function MapScreen() {
             </Link>
           </div>
         </div>
+
+        {state.offlineAt && (
+          <p className="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100" role="status">
+            {t('near.offline', {
+              when: new Date(state.offlineAt).toLocaleString(lang === 'th' ? 'th-TH' : `${lang}-SG`, {
+                ...(Date.now() - state.offlineAt > 12 * 3_600_000 && { day: 'numeric', month: 'short' }),
+                hour: 'numeric',
+                minute: '2-digit',
+              }),
+            })}
+          </p>
+        )}
 
         {terminal && <ChangiCard key={terminal} terminal={terminal} />}
 

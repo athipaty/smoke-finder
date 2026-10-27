@@ -255,4 +255,7 @@ export default {
   'about.orchard': "乌节路禁烟区边界：环境局（OneMap），环境局最近于 2024 年 2 月 1 日更改",
   'about.sources': "资料来源：环境局、OpenStreetMap 贡献者、OneMap（新加坡土地管理局）、樟宜机场",
   'about.version': "应用版本 {v}",
+  'common.offline': "没有网络连接。有信号时请再试一次。",
+  'common.noServer': "无法连接服务器。请检查网络后再试。",
+  'near.offline': "没有网络。显示 {when} 保存的地点，距离按您现在的位置计算。",
 }

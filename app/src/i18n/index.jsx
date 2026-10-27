@@ -27,6 +27,12 @@ function initialLang() {
 // "{m} m away" + { m: 12 } -> "12 m away"
 const fill = (text, vars) => (vars ? text.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? `{${k}}`)) : text)
 
+// For code outside components (api.js): uses the language currently shown.
+export function translate(key, vars) {
+  const dict = DICTS[document.documentElement.lang] ?? en
+  return fill(dict[key] ?? en[key] ?? key, vars)
+}
+
 const I18nContext = createContext(null)
 
 export function I18nProvider({ children }) {

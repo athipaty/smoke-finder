@@ -216,4 +216,7 @@ export default {
   'about.orchard': "Orchard Road No Smoking Zone boundary: NEA (OneMap), last changed by NEA on 1 Feb 2024",
   'about.sources': "Sources: NEA, OpenStreetMap contributors, OneMap (SLA), Changi Airport",
   'about.version': "App version {v}",
+  'common.offline': "No internet connection. Try again when you have signal.",
+  'common.noServer': "Can't reach the server. Check your connection and try again.",
+  'near.offline': "No connection. Showing places saved at {when}. Distances are from where you are now.",
 }

@@ -1,4 +1,5 @@
 import { getDeviceId } from './storage.js'
+import { translate } from './i18n/index.jsx'
 
 // VITE_API_URL=http://localhost:5000/api/smoke to use a local backend.
 const API = import.meta.env.VITE_API_URL ?? 'https://center-kitchen-backend.onrender.com/api/smoke'
@@ -8,7 +9,15 @@ const API = import.meta.env.VITE_API_URL ?? 'https://center-kitchen-backend.onre
 async function request(path, { params, device = false, ...init } = {}) {
   const url = `${API}${path}${params ? `?${new URLSearchParams(params)}` : ''}`
   const headers = { ...(device && { 'X-Device-Id': getDeviceId() }), ...init.headers }
-  const res = await fetch(url, { ...init, headers })
+  let res
+  try {
+    res = await fetch(url, { ...init, headers })
+  } catch {
+    // No signal, or the server can't be reached at all.
+    const err = new Error(translate(navigator.onLine === false ? 'common.offline' : 'common.noServer'))
+    err.offline = true
+    throw err
+  }
   const body = await res.json().catch(() => ({}))
   if (!res.ok) {
     const err = new Error(body.error ?? `Server error (${res.status})`)
@@ -19,10 +28,13 @@ async function request(path, { params, device = false, ...init } = {}) {
   return body
 }
 
-export const checkSpot = ({ lat, lng, accuracy }) =>
-  request('/check', { params: { lat, lng, ...(accuracy != null && { acc: Math.round(accuracy) }) } })
+// Locations go in a POST body, not the URL, so they don't end up in server logs.
+const postJson = (path, body, opts) =>
+  request(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), ...opts })
 
-export const fetchNearby = ({ lat, lng }) => request('/nearby', { params: { lat, lng }, device: true })
+export const checkSpot = ({ lat, lng, accuracy }) => postJson('/check', { lat, lng, ...(accuracy != null && { acc: Math.round(accuracy) }) })
+
+export const fetchNearby = ({ lat, lng }) => postJson('/nearby', { lat, lng }, { device: true })
 
 export const fetchSpot = (id) => request(`/spots/${id}`, { device: true })
 
@@ -32,8 +44,7 @@ export const fetchDsas = () => request('/dsas')
 export const fetchMeta = () => request('/meta')
 
 // Real walking route (OneMap): { minutes, metres, path: [[lat, lng], ...] }
-export const fetchRoute = (from, to) =>
-  request('/route', { params: { from: `${from.lat},${from.lng}`, to: `${to.lat},${to.lng}` } })
+export const fetchRoute = (from, to) => postJson('/route', { from: `${from.lat},${from.lng}`, to: `${to.lat},${to.lng}` })
 
 // "Report a problem". report: { kind, message, lat?, lng?, verdict?, rules?, lang }
 export const sendReport = (report) =>
