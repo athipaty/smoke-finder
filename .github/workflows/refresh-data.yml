@@ -1,0 +1,54 @@
+# Weekly data refresh: fetch NEA + OpenStreetMap, rebuild, check, import into
+# MongoDB. The backend's alerts job notices the new import and re-checks
+# everyone's saved spots. Any failed step stops before the import, so the live
+# data is only replaced by a dataset that passed the tests and spot checks;
+# the import itself also refuses data that is much smaller than what's live.
+name: Refresh data
+
+on:
+  schedule:
+    - cron: '0 18 * * 0' # Sundays 18:00 UTC = Mondays 02:00 Singapore
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300 # the public Overpass servers can be slow
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch NEA and OpenStreetMap data
+        run: npm run fetch
+
+      - name: Build zones
+        run: npm run build:data
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Spot-check real places
+        run: npm run spotcheck -- --strict
+
+      - name: Import into MongoDB
+        run: |
+          if [ -z "$MONGO_URI" ]; then
+            echo "::warning::MONGO_URI secret is not set, so the import was skipped."
+            exit 0
+          fi
+          npm run import
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
