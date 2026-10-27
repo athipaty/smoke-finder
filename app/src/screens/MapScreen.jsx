@@ -1,15 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Circle, CircleMarker, Tooltip } from 'react-leaflet'
 import { useGeo } from '../geo.jsx'
 import { fetchNearby } from '../api.js'
-import { distanceText, titleCase } from '../format.js'
+import { distanceText, featureText, titleCase } from '../format.js'
+import { load, save, KEYS } from '../storage.js'
 import SgMap from '../components/SgMap.jsx'
+import { COLOURS } from '../colours.js'
+const MAX_FIT_M = 600 // don't zoom out for far-away spots; they're still in the list
 
-const COLOURS = { you: '#2563eb', open: '#1f8a4c', dsa: '#d97706' }
-const MAX_FIT_M = 600 // don't zoom out for far-away DSAs; they're still in the list
+function communityStatus(s) {
+  if (s.stale) return 'Not confirmed lately'
+  return s.status === 'verified' ? 'Verified' : 'Unverified'
+}
 
-// Open spots and DSAs in one list, nearest first.
+// All three kinds in one list, nearest first. Open areas are by definition
+// uncovered (anything under a roof is amber), so they count as unsheltered.
 function toSpots(nearby) {
   const open = nearby.open.map((s, i) => ({
     ...s,
@@ -17,6 +23,7 @@ function toSpots(nearby) {
     id: `open-${i}`,
     title: 'Open area',
     subtitle: 'No no-smoking places here in our data',
+    sheltered: false,
   }))
   const dsas = nearby.dsas.map((d) => ({
     ...d,
@@ -24,14 +31,26 @@ function toSpots(nearby) {
     id: `dsa-${d.neaId}`,
     title: titleCase(d.name),
     subtitle: `NEA smoking area · ${d.description ?? ''}`.replace(/ · $/, ''),
+    sheltered: null, // unknown
   }))
-  return [...open, ...dsas].sort((a, b) => a.distanceM - b.distanceM)
+  const community = (nearby.community ?? []).map((c) => ({
+    ...c,
+    kind: 'community',
+    title: c.name ?? 'Community spot',
+    subtitle: [communityStatus(c), featureText(c)].filter(Boolean).join(' · '),
+  }))
+  return [...open, ...dsas, ...community].sort((a, b) => a.distanceM - b.distanceM)
 }
 
 export default function MapScreen() {
   const { geo, locate } = useGeo()
   const navigate = useNavigate()
   const [state, setState] = useState({ status: 'idle', nearby: null, error: null })
+  // null = follow the weather; true/false = the user's own choice
+  const [shelteredChoice, setShelteredChoice] = useState(() => {
+    const saved = load(KEYS.shelteredOnly)
+    return saved === null ? null : saved === '1'
+  })
 
   useEffect(() => {
     if (geo.status === 'idle') locate()
@@ -49,9 +68,17 @@ export default function MapScreen() {
     }
   }, [geo.status, geo.at, geo.coords])
 
-  const spots = useMemo(() => (state.nearby ? toSpots(state.nearby) : []), [state.nearby])
+  const weather = state.nearby?.weather
+  const shelteredOnly = shelteredChoice ?? Boolean(weather?.raining)
+  const allSpots = useMemo(() => (state.nearby ? toSpots(state.nearby) : []), [state.nearby])
+  const spots = shelteredOnly ? allSpots.filter((s) => s.sheltered) : allSpots
   const you = geo.coords
   const open = (spot) => navigate('/spot', { state: { spot, from: you } })
+  const toggleSheltered = () => {
+    const next = !shelteredOnly
+    setShelteredChoice(next)
+    save(KEYS.shelteredOnly, next ? '1' : '0')
+  }
 
   if (!you) {
     return (
@@ -73,7 +100,7 @@ export default function MapScreen() {
 
   return (
     <main className="flex flex-1 flex-col">
-      <SgMap center={you} fit={fit} className="h-[45dvh] w-full">
+      <SgMap center={you} fit={fit} className="h-[42dvh] w-full">
         <Circle center={[you.lat, you.lng]} radius={you.accuracy} pathOptions={{ color: COLOURS.you, weight: 1, fillOpacity: 0.08 }} />
         <CircleMarker center={[you.lat, you.lng]} radius={8} pathOptions={{ color: '#fff', weight: 3, fillColor: COLOURS.you, fillOpacity: 1 }}>
           <Tooltip>You</Tooltip>
@@ -94,19 +121,42 @@ export default function MapScreen() {
       </SgMap>
 
       <section className="flex-1 px-4 pt-4">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-xl font-bold">Legal spots near you</h1>
-          <button type="button" onClick={locate} className="text-sm font-medium text-go dark:text-go-dark">
-            Refresh
-          </button>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-bold">Spots near you</h1>
+          <div className="flex shrink-0 items-center gap-4 text-sm font-medium">
+            <button type="button" onClick={locate} className="text-go dark:text-go-dark">
+              Refresh
+            </button>
+            <Link to="/add" className="rounded-full px-3 py-1.5 text-white" style={{ backgroundColor: COLOURS.community }} aria-label="Add a spot">
+              + Add
+            </Link>
+          </div>
         </div>
+
+        {weather?.raining && (
+          <p className="mt-3 rounded-xl bg-sky-100 px-4 py-2 text-sm text-sky-900 dark:bg-sky-950 dark:text-sky-100">
+            {weather.forecast} expected in {weather.area} ({weather.period}).
+          </p>
+        )}
+
+        {state.status === 'done' && (
+          <label className="mt-3 flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm shadow-sm dark:bg-stone-900">
+            <span>
+              <span className="font-medium">Sheltered spots only</span>
+              <span className="block text-stone-500 dark:text-stone-400">Spots people marked as covered</span>
+            </span>
+            <input type="checkbox" checked={shelteredOnly} onChange={toggleSheltered} className="h-5 w-5 accent-go" />
+          </label>
+        )}
 
         {state.status === 'loading' && <p className="mt-4 text-stone-500 dark:text-stone-400" role="status">Looking around you…</p>}
         {state.status === 'error' && <p className="mt-4 text-stop dark:text-stop-dark" role="alert">{state.error}</p>}
 
         {state.status === 'done' && spots.length === 0 && (
           <p className="mt-4 text-stone-600 dark:text-stone-300">
-            No legal spot within {state.nearby.searchRadiusM} m in our data. Try moving away from buildings, bus stops and parks, then refresh.
+            {shelteredOnly
+              ? 'No sheltered spots known nearby yet. Turn the filter off to see open areas, or add a covered spot when you find one.'
+              : `No legal spot within ${state.nearby.searchRadiusM} m in our data. Try moving away from buildings, bus stops and parks, then refresh.`}
           </p>
         )}
 
@@ -138,7 +188,9 @@ export default function MapScreen() {
 
         {state.status === 'done' && (
           <p className="mt-3 pb-4 text-xs text-stone-500 dark:text-stone-400">
-            Open areas are worked out from NEA rules and map data, not visited by anyone yet. Walking times are estimates. Check for signs when you get there.
+            <span style={{ color: COLOURS.community }}>●</span> added by people ·{' '}
+            <span style={{ color: COLOURS.dsa }}>●</span> NEA ·{' '}
+            <span style={{ color: COLOURS.open }}>●</span> open areas worked out from NEA rules and map data, not visited. Walking times are estimates.
           </p>
         )}
       </section>

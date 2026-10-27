@@ -8,6 +8,7 @@ import Check from './screens/Check.jsx'
 import MapScreen from './screens/MapScreen.jsx'
 import SpotDetail from './screens/SpotDetail.jsx'
 import Rules from './screens/Rules.jsx'
+import AddSpot from './screens/AddSpot.jsx'
 
 export default function App() {
   const [ageConfirmed, setAgeConfirmed] = useState(() => load(KEYS.ageConfirmed) === '1')
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/" element={<Check />} />
             <Route path="/map" element={<MapScreen />} />
             <Route path="/spot" element={<SpotDetail />} />
+            <Route path="/add" element={<AddSpot />} />
             <Route path="/rules" element={<Rules />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

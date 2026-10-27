@@ -66,6 +66,11 @@ export default function Check() {
       </div>
 
       <div className="mt-auto space-y-3 pb-4 pt-6">
+        {result?.verdict === 'green' && !result.designatedArea && (
+          <Link to="/add" className="block text-center text-sm font-medium text-[#7c3aed] underline">
+            Good spot? Add it so others can find it
+          </Link>
+        )}
         {result && result.verdict !== 'green' && (
           <Link
             to="/map"
