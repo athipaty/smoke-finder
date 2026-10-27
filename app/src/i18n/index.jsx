@@ -5,14 +5,16 @@ import en from './en.js'
 import zh from './zh.js'
 import ms from './ms.js'
 import ta from './ta.js'
+import th from './th.js'
 
 export const LANGUAGES = [
   { id: 'en', name: 'English' },
   { id: 'zh', name: '中文' },
   { id: 'ms', name: 'Bahasa Melayu' },
   { id: 'ta', name: 'தமிழ்' },
+  { id: 'th', name: 'ไทย' },
 ]
-const DICTS = { en, zh, ms, ta }
+const DICTS = { en, zh, ms, ta, th }
 const KEY = 'sf.lang'
 
 function initialLang() {
