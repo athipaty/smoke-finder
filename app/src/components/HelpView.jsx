@@ -70,6 +70,15 @@ const SECTIONS = [
     link: { href: 'https://center-kitchen-backend.onrender.com/api/smoke/health/faces', label: 'Face blurring health check ("ok": true = working)' },
   },
   {
+    icon: '💾',
+    title: 'Backups',
+    items: [
+      'Every Sunday 3am the backend saves an encrypted copy of the community data (spots, votes, reports, usage counts, alert settings) to B2 under smoke-backups/, keeping the last 8 weeks. The Monday summary says when the last one was saved; a failure sends an alert.',
+      'The key is SMOKE_BACKUP_KEY in Render → center-kitchen-backend → Environment. Save a copy in your password manager: without it the backups can’t be opened.',
+      'To restore, ask Claude (backend script scripts/smoke-restore-backup.js). It only ever restores into an empty database, so live data is never overwritten.',
+    ],
+  },
+  {
     icon: '🌐',
     title: 'Public guide pages',
     items: [
