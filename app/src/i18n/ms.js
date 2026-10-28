@@ -67,7 +67,7 @@ export default {
   'near.none': 'Tiada tempat sah dalam lingkungan {m} m dalam data kami. Cuba jauhkan diri dari bangunan, perhentian bas dan taman, kemudian muat semula.',
   'near.legendCommunity': 'ditambah oleh pengguna',
   'near.legendNea': 'NEA',
-  'near.legendOpen': 'kawasan terbuka dikira daripada peraturan NEA dan data peta, belum dilawati. Masa berjalan kaki ialah anggaran.',
+  'near.legendOpen': 'kawasan terbuka dikira daripada peraturan NEA dan data peta, belum dilawati. Masa bertanda ~ ialah anggaran.',
 
   'spot.openTitle': 'Kawasan terbuka',
   'spot.openSubtitle': 'Tiada tempat larangan merokok di sini dalam data kami',
@@ -297,4 +297,6 @@ export default {
   'add.allDay': "Dibuka 24 jam",
   'hours.24h': "Dibuka 24 jam",
   'detail.hours': "Waktu: {hours}",
+  'near.needs': "Mesti ada:",
+  'near.noneNeeds': "Belum ada tempat berdekatan yang diketahui mempunyainya. Ketik penapis untuk mematikannya, atau tambah tempat apabila anda menjumpainya.",
 }

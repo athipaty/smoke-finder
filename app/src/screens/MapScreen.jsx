@@ -18,6 +18,22 @@ const MAX_FIT_M = 600 // don't zoom out for far-away spots; they're still in the
 const ROUTED = 5 // the nearest spots get real walking times (F2), the rest an estimate
 const spotKey = (s) => `${s.lat.toFixed(6)},${s.lng.toFixed(6)}`
 
+// Feature filters. A spot passes if it's known to have the feature; NEA areas
+// (equipment unknown, and in Orchard the only legal places) always pass.
+const NEEDS = [
+  { key: 'hasAshtray', label: 'add.f.ashtray' },
+  { key: 'hasSeating', label: 'add.f.seats' },
+]
+const meetsNeeds = (s, needs) => s.kind === 'dsa' || needs.every((key) => s[key] === true)
+function loadNeeds() {
+  try {
+    const saved = JSON.parse(load(KEYS.needs) ?? '[]')
+    return NEEDS.map((n) => n.key).filter((key) => saved.includes(key))
+  } catch {
+    return []
+  }
+}
+
 // Real walking times replace the estimate, and the list is sorted by them.
 function withRoutes(spots, routes) {
   if (!routes) return spots
@@ -94,6 +110,12 @@ export default function MapScreen() {
     const saved = load(KEYS.shelteredOnly)
     return saved === null ? null : saved === '1'
   })
+  const [needs, setNeeds] = useState(loadNeeds)
+  const toggleNeed = (key) => {
+    const next = needs.includes(key) ? needs.filter((k) => k !== key) : [...needs, key]
+    setNeeds(next)
+    save(KEYS.needs, JSON.stringify(next))
+  }
 
   useEffect(() => {
     if (geo.status === 'idle') locate()
@@ -153,7 +175,7 @@ export default function MapScreen() {
   const allSpots = useMemo(() => withRoutes(baseSpots, routes), [baseSpots, routes])
   // In rain, hide only spots known to be uncovered. NEA areas (shelter unknown)
   // stay: in Orchard they're the only legal places at all.
-  const spots = shelteredOnly ? allSpots.filter((s) => s.sheltered !== false) : allSpots
+  const spots = allSpots.filter((s) => (!shelteredOnly || s.sheltered !== false) && meetsNeeds(s, needs))
   const you = origin
   const open = (spot) => navigate('/spot', { state: { spot, from: you } })
   const pick = (p) => {
@@ -316,6 +338,28 @@ export default function MapScreen() {
             <input type="checkbox" checked={shelteredOnly} onChange={toggleSheltered} className="h-5 w-5 accent-go" />
           </label>
         )}
+        {state.status === 'done' && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" role="group" aria-label={t('near.needs')}>
+            <span className="text-stone-500 dark:text-stone-400">{t('near.needs')}</span>
+            {NEEDS.map((n) => {
+              const on = needs.includes(n.key)
+              return (
+                <button
+                  key={n.key}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggleNeed(n.key)}
+                  className={`rounded-full px-3 py-1.5 font-medium ${
+                    on ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
+                  }`}
+                >
+                  {on ? '✓ ' : ''}
+                  {t(n.label)}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {state.status === 'loading' && (
           <p className="mt-4 text-stone-500 dark:text-stone-400" role="status">
@@ -330,7 +374,7 @@ export default function MapScreen() {
 
         {state.status === 'done' && spots.length === 0 && (
           <p className="mt-4 text-stone-600 dark:text-stone-300">
-            {shelteredOnly ? t('near.noneSheltered') : t('near.none', { m: state.nearby.searchRadiusM })}
+            {needs.length ? t('near.noneNeeds') : shelteredOnly ? t('near.noneSheltered') : t('near.none', { m: state.nearby.searchRadiusM })}
           </p>
         )}
 

@@ -67,7 +67,7 @@ export default {
   'near.none': '根据我们的数据，{m} 米内没有合法地点。请远离建筑物、巴士站和公园，然后刷新。',
   'near.legendCommunity': '用户添加',
   'near.legendNea': '环境局',
-  'near.legendOpen': '开放地点根据环境局规定和地图数据推算，无人实地确认。步行时间为估计值。',
+  'near.legendOpen': '开放地点根据环境局规定和地图数据推算，无人实地确认。带 ~ 或“约”的时间为估计值。',
 
   'spot.openTitle': '开放地点',
   'spot.openSubtitle': '根据我们的数据，此处没有禁烟地点',
@@ -297,4 +297,6 @@ export default {
   'add.allDay': "24小时开放",
   'hours.24h': "24小时开放",
   'detail.hours': "开放时间：{hours}",
+  'near.needs': "必须有：",
+  'near.noneNeeds': "附近还没有已知具备这些条件的地点。点一下筛选条件即可关闭，或在找到时添加地点。",
 }

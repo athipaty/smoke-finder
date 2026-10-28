@@ -20,6 +20,7 @@ export const KEYS = {
   locationAllowed: 'sf.locationAllowed',
   deviceId: 'sf.deviceId',
   shelteredOnly: 'sf.shelteredOnly',
+  needs: 'sf.needs', // Nearby feature filters, e.g. ["hasAshtray"]
   lastPing: 'sf.lastPing',
   installSnoozed: 'sf.installSnoozed',
   lastNearby: 'sf.lastNearby', // last Nearby results, for use without signal

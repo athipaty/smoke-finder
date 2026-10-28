@@ -67,7 +67,7 @@ export default {
   'near.none': 'No legal spot within {m} m in our data. Try moving away from buildings, bus stops and parks, then refresh.',
   'near.legendCommunity': 'added by people',
   'near.legendNea': 'NEA',
-  'near.legendOpen': 'open areas worked out from NEA rules and map data, not visited. Walking times are estimates.',
+  'near.legendOpen': 'open areas worked out from NEA rules and map data, not visited. Times with ~ are estimates.',
 
   'spot.openTitle': 'Open area',
   'spot.openSubtitle': 'No no-smoking places here in our data',
@@ -258,4 +258,6 @@ export default {
   'add.allDay': "Open 24 hours",
   'hours.24h': "Open 24 hours",
   'detail.hours': "Hours: {hours}",
+  'near.needs': "Must have:",
+  'near.noneNeeds': "No spots nearby are known to have that yet. Tap a filter to turn it off, or add a spot when you find one.",
 }
