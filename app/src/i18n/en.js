@@ -275,4 +275,5 @@ export default {
   'rules.around': "+{m} m around",
   'park.hasDsas': "{park} has designated smoking areas, usually near the carparks. Look for the signs.",
   'park.listIntro': "These parks have designated smoking areas, usually near the carparks (NParks):",
+  'rules.guide': "Singapore smoking guide (web pages to share)",
 }

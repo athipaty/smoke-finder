@@ -314,4 +314,5 @@ export default {
   'rules.around': "+{m} m sekeliling",
   'park.hasDsas': "{park} ada kawasan merokok yang ditetapkan, biasanya berhampiran tempat letak kereta. Cari papan tandanya.",
   'park.listIntro': "Taman-taman ini ada kawasan merokok yang ditetapkan, biasanya berhampiran tempat letak kereta (NParks):",
+  'rules.guide': "Panduan merokok Singapura (halaman web untuk dikongsi)",
 }

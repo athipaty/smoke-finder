@@ -314,4 +314,5 @@ export default {
   'rules.around': "及周围 {m} 米",
   'park.hasDsas': "{park}设有指定吸烟区，通常在停车场附近。请留意标志。",
   'park.listIntro': "以下公园设有指定吸烟区，通常在停车场附近（国家公园局）：",
+  'rules.guide': "新加坡吸烟指南（可分享的网页）",
 }
