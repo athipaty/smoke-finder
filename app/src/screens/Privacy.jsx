@@ -38,7 +38,7 @@ const SECTIONS = [
     title: 'Spots, votes and photos you add',
     icon: '📸',
     body: [
-      'Spots you add, their features and their photos (including photos you add to an existing spot) are public. Photos are resized and their hidden location data (EXIF) is removed before they are stored. Please do not include people or private property.',
+      'Spots you add, their features and their photos (including photos you add to an existing spot) are public. Photos are resized, their hidden location data (EXIF) is removed, and faces our system can detect are blurred before they are stored. It can miss some faces (for example, turned sideways or very small), so please do not include people or private property.',
       'Your votes ("Still here", "Gone", "Not allowed here", photo reports, and your answers when you fix a spot\u2019s details) are stored with the hashed ID so each phone counts once. Spots may be hidden automatically after reports, or removed by our moderators.',
     ],
   },
