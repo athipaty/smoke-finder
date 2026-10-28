@@ -132,7 +132,7 @@ export default {
   'add.namePlaceholder': 'cth. Belakang tempat letak kereta Blk 201',
   'add.photo': 'Tambah foto',
   'add.changePhoto': 'Tukar foto',
-  'add.photoHint': 'Pilihan. Tolong jangan ambil gambar orang.',
+  'add.photoHint': "Pilihan. Wajah dikaburkan secara automatik, tetapi elakkan orang dalam gambar.",
   'add.submit': 'Tambah tempat ini',
   'add.saving': 'Menyimpan…',
   'add.openIt': 'Bukanya',

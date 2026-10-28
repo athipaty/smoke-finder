@@ -132,7 +132,7 @@ export default {
   'add.namePlaceholder': 'เช่น หลังลานจอดรถ Blk 201',
   'add.photo': 'เพิ่มรูป',
   'add.changePhoto': 'เปลี่ยนรูป',
-  'add.photoHint': 'ไม่บังคับ กรุณาอย่าถ่ายติดคน',
+  'add.photoHint': "ไม่บังคับ ระบบจะเบลอใบหน้าให้อัตโนมัติ แต่โปรดหลีกเลี่ยงการถ่ายติดคน",
   'add.submit': 'เพิ่มจุดนี้',
   'add.saving': 'กำลังบันทึก…',
   'add.openIt': 'เปิดดู',

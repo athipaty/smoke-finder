@@ -132,7 +132,7 @@ export default {
   'add.namePlaceholder': '例如：201 座停车场后面',
   'add.photo': '添加照片',
   'add.changePhoto': '更换照片',
-  'add.photoHint': '可选。请不要拍到人。',
+  'add.photoHint': "可选。人脸会自动模糊，但请尽量不要拍到人。",
   'add.submit': '添加这个地点',
   'add.saving': '正在保存…',
   'add.openIt': '打开它',

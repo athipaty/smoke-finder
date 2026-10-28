@@ -13,10 +13,29 @@ const SG_CENTRE = { lat: 1.3521, lng: 103.8198 } // where a moderator without GP
 const EMPTY_FORM = { name: '', hours: '', allDay: false, sheltered: false, hasAshtray: false, hasSeating: false }
 
 const FEATURES = [
-  { key: 'sheltered', label: 'add.f.sheltered', hint: 'add.f.shelteredHint' },
-  { key: 'hasAshtray', label: 'add.f.ashtray', hint: 'add.f.ashtrayHint' },
-  { key: 'hasSeating', label: 'add.f.seats', hint: 'add.f.seatsHint' },
+  { key: 'sheltered', label: 'add.f.sheltered', hint: 'add.f.shelteredHint', icon: '☂️' },
+  { key: 'hasAshtray', label: 'add.f.ashtray', hint: 'add.f.ashtrayHint', icon: '🗑️' },
+  { key: 'hasSeating', label: 'add.f.seats', hint: 'add.f.seatsHint', icon: '🪑' },
 ]
+
+// The pin's rules check as a banner, in the same colours and marks as answers.
+const BANNERS = {
+  green: { box: 'bg-green-50 text-green-900 dark:bg-green-950/60 dark:text-green-100', mark: '✓' },
+  amber: { box: 'bg-amber-50 text-amber-900 dark:bg-amber-950/60 dark:text-amber-100', mark: '!' },
+  red: { box: 'bg-red-50 text-red-900 dark:bg-red-950/60 dark:text-red-100', mark: '✕' },
+  wait: { box: 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300', mark: '…' },
+}
+function Banner({ tone, children }) {
+  const b = BANNERS[tone]
+  return (
+    <p className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium ${b.box}`}>
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/70 text-xs font-bold dark:bg-black/30" aria-hidden="true">
+        {b.mark}
+      </span>
+      {children}
+    </p>
+  )
+}
 
 // Reports the map centre (where the fixed pin points) after every pan or zoom.
 function CentreTracker({ onMove }) {
@@ -32,14 +51,14 @@ function CentreTracker({ onMove }) {
 function PinCheck({ check }) {
   const { t, ruleLabel } = useI18n()
   if (!check) return null
-  if (check.status === 'loading') return <p className="text-sm text-stone-500 dark:text-stone-400">{t('add.checking')}</p>
-  if (check.status === 'error') return <p className="text-sm text-stop dark:text-stop-dark">{check.error}</p>
+  if (check.status === 'loading') return <Banner tone="wait">{t('add.checking')}</Banner>
+  if (check.status === 'error') return <Banner tone="red">{check.error}</Banner>
   const r = check.result
   const place = r.reasons[0] ? ruleLabel(r.reasons[0].rule) : ''
-  if (r.designatedArea) return <p className="text-sm font-medium text-maybe dark:text-maybe-dark">{t('add.alreadyDsa')}</p>
-  if (r.verdict === 'red') return <p className="text-sm font-medium text-stop dark:text-stop-dark">{t('add.notAllowed', { place })}</p>
-  if (r.verdict === 'amber') return <p className="text-sm font-medium text-maybe dark:text-maybe-dark">{t('add.checkSigns', { place: place.toLowerCase() })}</p>
-  return <p className="text-sm font-medium text-go dark:text-go-dark">{t('add.allowed')}</p>
+  if (r.designatedArea) return <Banner tone="amber">{t('add.alreadyDsa')}</Banner>
+  if (r.verdict === 'red') return <Banner tone="red">{t('add.notAllowed', { place })}</Banner>
+  if (r.verdict === 'amber') return <Banner tone="amber">{t('add.checkSigns', { place: place.toLowerCase() })}</Banner>
+  return <Banner tone="green">{t('add.allowed')}</Banner>
 }
 
 export default function AddSpot() {
@@ -189,13 +208,18 @@ export default function AddSpot() {
               style={form[f.key] ? { backgroundColor: COLOURS.community } : undefined}
             >
               <input type="checkbox" className="sr-only" checked={form[f.key]} onChange={(e) => setForm({ ...form, [f.key]: e.target.checked })} />
-              <span className="font-medium">{t(f.label)}</span>
-              <span className={`text-xs ${form[f.key] ? 'text-white/80' : 'text-stone-500 dark:text-stone-400'}`}>{t(f.hint)}</span>
+              <span className="flex items-center justify-between text-lg" aria-hidden="true">
+                {f.icon}
+                {form[f.key] && <span className="text-sm font-bold">✓</span>}
+              </span>
+              <span className="mt-1 font-medium">{t(f.label)}</span>
+              <span className={`text-xs ${form[f.key] ? 'text-white' : 'text-stone-500 dark:text-stone-400'}`}>{t(f.hint)}</span>
             </label>
           ))}
         </fieldset>
 
-        <label className="mt-3 block text-sm">
+        <div className="mt-3 space-y-3 rounded-2xl bg-white p-3 shadow-sm dark:bg-stone-900">
+        <label className="block text-sm">
           <span className="font-medium">{t('add.name')}</span>
           <input
             type="text"
@@ -207,7 +231,7 @@ export default function AddSpot() {
           />
         </label>
 
-        <div className="mt-3 text-sm">
+        <div className="text-sm">
           <label htmlFor="add-hours" className="font-medium">
             {t('add.hours')}
           </label>
@@ -229,14 +253,22 @@ export default function AddSpot() {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center gap-3">
-          <label className="cursor-pointer rounded-xl bg-white px-4 py-2 text-sm font-medium shadow-sm dark:bg-stone-900">
-            {photo ? t('add.changePhoto') : t('add.photo')}
-            <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
-          </label>
-          {preview && <img src={preview} alt="" className="h-12 w-12 rounded-lg object-cover" />}
-          <span className="text-xs text-stone-500 dark:text-stone-400">{t('add.photoHint')}</span>
         </div>
+
+        <label className="mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed border-stone-300 p-3 active:opacity-80 dark:border-stone-700">
+          {preview ? (
+            <img src={preview} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+          ) : (
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-2xl dark:bg-stone-800" aria-hidden="true">
+              📷
+            </span>
+          )}
+          <span className="text-sm">
+            <span className="block font-medium">{photo ? t('add.changePhoto') : t('add.photo')}</span>
+            <span className="block text-xs text-stone-500 dark:text-stone-400">{t('add.photoHint')}</span>
+          </span>
+          <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+        </label>
 
         {submit.error && (
           <p className="mt-3 text-sm text-stop dark:text-stop-dark" role="alert">

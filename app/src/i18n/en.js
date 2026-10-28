@@ -132,7 +132,7 @@ export default {
   'add.namePlaceholder': 'e.g. Behind Blk 201 carpark',
   'add.photo': 'Add a photo',
   'add.changePhoto': 'Change photo',
-  'add.photoHint': 'Optional. No people in the shot, please.',
+  'add.photoHint': "Optional. Faces are blurred automatically, but please avoid people in the shot.",
   'add.submit': 'Add this spot',
   'add.saving': 'Saving…',
   'add.openIt': 'Open it',
