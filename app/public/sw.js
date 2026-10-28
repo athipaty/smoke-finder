@@ -49,6 +49,9 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
   if (request.method !== 'GET' || url.origin !== self.location.origin) return
+  // The public guide pages are plain HTML, not the app: leave them to the browser,
+  // and never save one as the app's offline page.
+  if (url.pathname.startsWith('/guide/') || url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt') return
 
   // Pages: network first so updates arrive straight away; the saved page offline.
   if (request.mode === 'navigate') {

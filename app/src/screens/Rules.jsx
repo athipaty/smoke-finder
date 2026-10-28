@@ -266,6 +266,11 @@ export default function Rules() {
           . {t('rules.owners')} {t('rules.checked', { on: day(RULES_CHECKED.on), nea: day(RULES_CHECKED.neaPageUpdated) })}
         </p>
         <p>
+          <a href="/guide/where-can-i-smoke-in-singapore.html" className="underline">
+            Singapore smoking guide (web pages, English)
+          </a>
+        </p>
+        <p>
           {t('rules.privacy')}{' '}
           <Link to="/privacy" className="underline">
             {t('privacy.link')}
