@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleMarker, Polyline } from 'react-leaflet'
 import { addSpotPhoto, checkins, fetchDsas, fetchRoute, fetchSpot, voteFeature, voteSpot } from '../api.js'
-import { checkinKey, directionsUrl, distanceText, featureText, hoursText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
+import { checkinKey, directionsUrl, distanceText, hoursText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
 import { useGeo } from '../geo.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import SgMap from '../components/SgMap.jsx'
@@ -67,7 +67,7 @@ function CommunityActions({ spot, onChange }) {
   }
 
   return (
-    <div className="mt-5">
+    <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-stone-900">
       <p className="text-sm font-semibold">{t('vote.question')}</p>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {VOTES.map((v) => {
@@ -80,7 +80,7 @@ function CommunityActions({ spot, onChange }) {
               aria-pressed={chosen}
               onClick={() => vote(v.type, v.done)}
               className={`rounded-xl px-2 py-3 text-sm font-medium active:opacity-80 disabled:opacity-60 ${
-                chosen ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
+                chosen ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-stone-100 dark:bg-stone-800'
               }`}
             >
               {busy === v.type ? '…' : t(v.label)}
@@ -242,7 +242,7 @@ function BusyNow({ spotKey, onCheckIn }) {
   }
 
   return (
-    <div className="mt-5">
+    <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-stone-900">
       <p className="text-sm font-semibold">{t('busy.title')}</p>
       <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
         {status.busyNow > 0 ? t('busy.count', { n: status.busyNow }) : t('busy.none')}
@@ -253,7 +253,7 @@ function BusyNow({ spotKey, onCheckIn }) {
         aria-pressed={status.here}
         onClick={() => act(!status.here)}
         className={`mt-2 w-full rounded-xl px-3 py-3 text-sm font-medium active:opacity-80 disabled:opacity-60 ${
-          status.here ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
+          status.here ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-stone-100 dark:bg-stone-800'
         }`}
       >
         {busy ? '…' : status.here ? t('busy.leave') : t('busy.checkIn')}
@@ -344,7 +344,6 @@ export default function SpotDetail() {
   const walkMin = spot.walkMin ?? (distanceM != null ? walkMinutes(distanceM) : null)
   const colour = COLOURS[spot.kind]
   const title = spotTitle(spot, t)
-  const features = spot.kind === 'community' ? featureText(spot, t) : ''
   // A link opened in a new tab has no in-app history to go back to.
   const goBack = () => (location.key === 'default' ? navigate('/map') : navigate(-1))
 
@@ -412,15 +411,34 @@ export default function SpotDetail() {
           </p>
         )}
         {spot.kind === 'dsa' && spot.description && <p className="text-stone-600 dark:text-stone-300">{spot.description}</p>}
-        {features && <p className="text-stone-600 first-letter:uppercase dark:text-stone-300">{features}</p>}
-        {spot.kind === 'community' && spot.hours && (
-          <p className="text-stone-600 dark:text-stone-300">{t('detail.hours', { hours: hoursText(spot, t) })}</p>
-        )}
-        {route ? (
-          <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walkRoute', { n: route.minutes, d: distanceText(route.metres) })}</p>
-        ) : (
-          distanceM != null && <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walk', { n: walkMin, d: distanceText(distanceM) })}</p>
-        )}
+        {/* The facts at a glance: walk, what's there, hours. */}
+        <ul className="mt-3 flex flex-wrap gap-2 text-sm">
+          {(route || distanceM != null) && (
+            <li className="flex items-center gap-1.5 rounded-full bg-go px-3 py-1.5 font-semibold text-white dark:bg-go-dark dark:text-stone-950">
+              <span aria-hidden="true">🚶</span>
+              {route ? t('detail.walkRoute', { n: route.minutes, d: distanceText(route.metres) }) : t('detail.walk', { n: walkMin, d: distanceText(distanceM) })}
+            </li>
+          )}
+          {spot.kind === 'community' &&
+            [
+              ['sheltered', '☂️', 'feature.sheltered'],
+              ['hasAshtray', '🗑️', 'feature.ashtray'],
+              ['hasSeating', '🪑', 'feature.seats'],
+            ]
+              .filter(([key]) => spot[key])
+              .map(([key, icon, label]) => (
+                <li key={key} className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 font-medium shadow-sm first-letter:uppercase dark:bg-stone-900">
+                  <span aria-hidden="true">{icon}</span>
+                  <span className="first-letter:uppercase">{t(label)}</span>
+                </li>
+              ))}
+          {spot.kind === 'community' && spot.hours && (
+            <li className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 font-medium shadow-sm dark:bg-stone-900">
+              <span aria-hidden="true">🕒</span>
+              {hoursText(spot, t)}
+            </li>
+          )}
+        </ul>
         {spot.kind === 'community' && !removed && spot.lastConfirmedAt && (
           <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{statusText(spot, t)}</p>
         )}

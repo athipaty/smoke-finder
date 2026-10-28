@@ -2,9 +2,22 @@ import { titleCase } from '../format.js'
 import { useI18n } from '../i18n/index.jsx'
 
 const STYLE = {
-  green: { ring: 'border-go dark:border-go-dark', text: 'text-go dark:text-go-dark', dot: 'bg-go dark:bg-go-dark' },
-  amber: { ring: 'border-maybe dark:border-maybe-dark', text: 'text-maybe dark:text-maybe-dark', dot: 'bg-maybe dark:bg-maybe-dark' },
-  red: { ring: 'border-stop dark:border-stop-dark', text: 'text-stop dark:text-stop-dark', dot: 'bg-stop dark:bg-stop-dark' },
+  green: { ring: 'border-go dark:border-go-dark', text: 'text-go dark:text-go-dark', dot: 'bg-go dark:bg-go-dark', badge: 'bg-go dark:bg-go-dark' },
+  amber: { ring: 'border-maybe dark:border-maybe-dark', text: 'text-maybe dark:text-maybe-dark', dot: 'bg-maybe dark:bg-maybe-dark', badge: 'bg-maybe dark:bg-maybe-dark' },
+  red: { ring: 'border-stop dark:border-stop-dark', text: 'text-stop dark:text-stop-dark', dot: 'bg-stop dark:bg-stop-dark', badge: 'bg-stop dark:bg-stop-dark' },
+}
+
+// A shape for each answer as well as a colour (tick, exclamation, cross), so
+// it reads at a glance and for colour-blind users.
+const MARKS = {
+  green: <path d="M7 12.5l3.5 3.5L17 9" />,
+  amber: (
+    <>
+      <path d="M12 7v6" />
+      <path d="M12 16.5v.5" />
+    </>
+  ),
+  red: <path d="M8 8l8 8M16 8l-8 8" />,
 }
 
 // The server words its answer in English; build it here from the structured
@@ -32,7 +45,14 @@ export default function VerdictCard({ result }) {
 
   return (
     <section aria-live="polite" className={`rounded-2xl border-l-8 bg-white p-5 shadow-sm dark:bg-stone-900 ${style.ring}`}>
-      <p className={`text-3xl font-bold ${style.text}`}>{t(`verdict.${result.verdict}`)}</p>
+      <div className="flex items-center gap-3">
+        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white dark:text-stone-950 ${style.badge}`} aria-hidden="true">
+          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+            {MARKS[result.verdict]}
+          </svg>
+        </span>
+        <p className={`text-3xl font-bold leading-tight ${style.text}`}>{t(`verdict.${result.verdict}`)}</p>
+      </div>
       <p className="mt-2 text-base leading-snug">{summaryText(result, i18n)}</p>
 
       {reasons.length > 0 && (
