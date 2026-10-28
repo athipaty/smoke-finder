@@ -59,7 +59,7 @@ const SECTIONS = [
   {
     title: 'Things kept only on your phone',
     body: [
-      'Your saved spots, language, your answer to the age question and similar settings stay in your browser on your phone. So does your last Nearby list (up to 7 days old), so it can be shown when you have no signal. Clearing the browser data for this site removes them.',
+      'Your saved spots, language, your answer to the age question and similar settings stay in your browser on your phone. So does your last Nearby list (up to 7 days old), and the map data around the last 5 places you checked (up to 30 days old), so the app works when you have no signal. Clearing the browser data for this site removes them.',
     ],
   },
   {

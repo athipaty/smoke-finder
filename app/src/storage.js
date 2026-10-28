@@ -23,6 +23,7 @@ export const KEYS = {
   lastPing: 'sf.lastPing',
   installSnoozed: 'sf.installSnoozed',
   lastNearby: 'sf.lastNearby', // last Nearby results, for use without signal
+  offlineAreas: 'sf.offlineAreas', // map data around recent checks (offline.js)
 }
 
 // Random id so the server can count one vote per phone. It identifies nothing

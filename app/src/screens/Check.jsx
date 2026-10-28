@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useGeo } from '../geo.jsx'
 import { checkSpot } from '../api.js'
+import { keepAreaAround, offlineCheck } from '../offline.js'
 import { load, KEYS } from '../storage.js'
 import { useI18n } from '../i18n/index.jsx'
+import { sinceText } from '../format.js'
 import VerdictCard from '../components/VerdictCard.jsx'
 import ChangiCard from '../components/ChangiCard.jsx'
 import InstallCard from '../components/InstallCard.jsx'
@@ -29,8 +31,20 @@ export default function Check() {
     setSlow(false)
     const timer = setTimeout(() => setSlow(true), SLOW_MS)
     checkSpot(geo.coords)
-      .then((result) => !cancelled && setState({ status: 'done', result, error: null }))
-      .catch((err) => !cancelled && setState({ status: 'error', result: null, error: err.message }))
+      .then((result) => {
+        if (cancelled) return
+        setState({ status: 'done', result, error: null })
+        // Keep the map data around here for checks without signal (in the background).
+        const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1500))
+        idle(() => keepAreaAround(geo.coords))
+      })
+      .catch(async (err) => {
+        // No signal: answer from map data saved on an earlier check nearby, if any.
+        const offline = err.offline ? await offlineCheck(geo.coords).catch(() => null) : null
+        if (cancelled) return
+        if (offline) setState({ status: 'done', result: offline, error: null })
+        else setState({ status: 'error', result: null, error: err.message })
+      })
       .finally(() => clearTimeout(timer))
     return () => {
       cancelled = true
@@ -49,6 +63,11 @@ export default function Check() {
       <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{t('check.subtitle')}</p>
 
       <div className="mt-6">
+        {result?.offline && (
+          <p className="mb-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100" role="status">
+            {t('check.offlineAnswer', { when: sinceText(result.offline.savedAt, t) })}
+          </p>
+        )}
         {result && <VerdictCard result={result} />}
         {result && (
           <Link
