@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createChecker } from '../src/engine.js'
 import { project, unproject, bboxOf, inRings } from '../src/geo.js'
-import { buildingRuleFor } from '../src/rules.js'
+import { buildingRuleFor, parkWithDsas } from '../src/rules.js'
 import { elementToZone, stitchRings } from '../src/osm.js'
 import { findLegalSpots, walkMinutes } from '../src/nearby.js'
 import { CHANGI_AREAS, terminalFor } from '../src/changi.js'
@@ -61,6 +61,15 @@ test('taxi stand: red in the queue area, amber just beyond, green further out', 
   assert.equal(r.reasons[0].rule, 'taxi_stand')
   assert.equal(check(at(8000 + 16, 0)).verdict, 'amber')
   assert.equal(check(at(8000 + 40, 0)).verdict, 'green')
+})
+
+test('parkWithDsas finds the NParks parks that have smoking areas, zones included', () => {
+  const at = (name) => parkWithDsas({ reasons: [{ rule: 'park', name }] })
+  assert.equal(at('East Coast Park (Zone C)'), 'East Coast Park')
+  assert.equal(at('Pasir Ris Park'), 'Pasir Ris Park')
+  assert.equal(at('Pasir Ris Town Park'), null)
+  assert.equal(at('East Coast Terrace Park'), null)
+  assert.equal(parkWithDsas({ reasons: [{ rule: 'building', name: 'West Coast Park' }] }), null)
 })
 
 test('inside a park is red and names the park', () => {

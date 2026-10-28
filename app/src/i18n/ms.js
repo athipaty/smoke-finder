@@ -22,7 +22,7 @@ export default {
   'onb.p2.title': 'Tempat sah yang terdekat',
   'onb.p2.body': 'Jika tidak, lihat tempat terdekat yang dibenarkan, berserta masa berjalan kaki.',
   'onb.p3.title': 'Lokasi anda kekal peribadi',
-  'onb.p3.body': 'Lokasi hanya digunakan semasa aplikasi dibuka, untuk menyemak tempat anda. Ia tidak pernah disimpan.',
+  'onb.p3.body': "Lokasi hanya digunakan semasa aplikasi dibuka, untuk menyemak tempat anda. Ia tidak disimpan, kecuali anda menambah tempat atau memilih untuk berkongsinya.",
   'onb.guidance': 'Jawapan hanyalah panduan. Sentiasa patuhi papan tanda di tempat itu dan peraturan NEA.',
   'onb.over21': 'Saya berumur 21 tahun ke atas',
   'onb.under21': 'Saya di bawah 21 tahun',
@@ -312,4 +312,6 @@ export default {
   'detail.approximate': "Lokasi anggaran: pergi ke sana dan cari papan tanda Kawasan Merokok yang Ditetapkan.",
   'status.approx': "Lokasi anggaran",
   'rules.around': "+{m} m sekeliling",
+  'park.hasDsas': "{park} ada kawasan merokok yang ditetapkan, biasanya berhampiran tempat letak kereta. Cari papan tandanya.",
+  'park.listIntro': "Taman-taman ini ada kawasan merokok yang ditetapkan, biasanya berhampiran tempat letak kereta (NParks):",
 }

@@ -1,4 +1,4 @@
-import { RULES, NEA_SOURCE, RULES_CHECKED } from '../../../src/rules.js'
+import { RULES, NEA_SOURCE, RULES_CHECKED, PARKS_WITH_DSAS } from '../../../src/rules.js'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchMeta } from '../api.js'
@@ -76,6 +76,11 @@ function RuleRow({ rule }) {
           </svg>
         </summary>
         <p className="px-4 pb-3 pl-16 text-sm text-stone-600 dark:text-stone-300">{ruleReason(rule.id)}</p>
+        {rule.id === 'park' && (
+          <p className="px-4 pb-3 pl-16 text-sm text-stone-600 dark:text-stone-300">
+            🌳 {t('park.listIntro')} {PARKS_WITH_DSAS.join(', ')}.
+          </p>
+        )}
       </details>
     </li>
   )

@@ -22,7 +22,7 @@ export default {
   'onb.p2.title': '最近的合法地点',
   'onb.p2.body': '如果不允许，就显示最近可以吸烟的地方和步行时间。',
   'onb.p3.title': '您的位置不会被保存',
-  'onb.p3.body': '位置只在应用打开时用来查询您所在的地点，绝不会被存储。',
+  'onb.p3.body': "位置只在应用打开时用来查询您所在的地点，不会被保存，除非您添加地点或选择分享位置。",
   'onb.guidance': '答案仅供参考。请始终遵守现场告示和环境局规定。',
   'onb.over21': '我已满 21 岁',
   'onb.under21': '我未满 21 岁',
@@ -312,4 +312,6 @@ export default {
   'detail.approximate': "位置为大约位置：请走过去寻找指定吸烟区的标志。",
   'status.approx': "大约位置",
   'rules.around': "及周围 {m} 米",
+  'park.hasDsas': "{park}设有指定吸烟区，通常在停车场附近。请留意标志。",
+  'park.listIntro': "以下公园设有指定吸烟区，通常在停车场附近（国家公园局）：",
 }

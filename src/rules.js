@@ -21,6 +21,35 @@ export const RULES_CHECKED = { on: '2026-10-28', neaPageUpdated: '2026-08-20' }
 export const FINE_NOTE = 'Fines up to $1,000'
 export const DISCLAIMER = 'Guidance only. Follow signs on site and NEA rules.'
 
+// Parks where NParks provides designated smoking areas, "near carparks or away
+// from the main park area" (it doesn't publish exact places). Names as in our
+// park zones; East Coast Park is mapped as zones ("East Coast Park (Zone C)").
+// Source: nparks.gov.sg/visit/when-visiting-parks/etiquette/parks-dos-donts (updated 16 Jun 2026).
+export const PARKS_WITH_DSAS = [
+  'Bishan-Ang Mo Kio Park',
+  'Changi Beach Park',
+  'East Coast Park',
+  'Jurong Central Park',
+  'Marsiling Park',
+  'Mount Faber Park',
+  'Pasir Ris Park',
+  'Raffles Place Park',
+  'Sembawang Park',
+  'Tanjong Pagar Park',
+  'West Coast Park',
+  'Woodlands Waterfront Park',
+]
+
+// The NParks park with smoking areas that a check result is inside, or null.
+export function parkWithDsas(result) {
+  for (const reason of result?.reasons ?? []) {
+    if (reason.rule !== 'park' || !reason.name) continue
+    const park = PARKS_WITH_DSAS.find((p) => reason.name === p || reason.name.startsWith(`${p} (`))
+    if (park) return park
+  }
+  return null
+}
+
 export const RULES = [
   {
     id: 'bus_stop',

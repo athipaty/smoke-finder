@@ -10,6 +10,7 @@ import VerdictCard from '../components/VerdictCard.jsx'
 import ChangiCard from '../components/ChangiCard.jsx'
 import InstallCard from '../components/InstallCard.jsx'
 import { terminalFor } from '../../../src/changi.js'
+import { parkWithDsas } from '../../../src/rules.js'
 
 const SLOW_MS = 3000 // the backend can take a while to wake up
 
@@ -79,6 +80,12 @@ export default function Check() {
           </Link>
         )}
         {terminal && <ChangiCard key={terminal} terminal={terminal} />}
+        {result && parkWithDsas(result) && (
+          <p className="mt-3 flex gap-2 rounded-2xl bg-green-50 px-4 py-3 text-sm text-green-900 dark:bg-green-950/60 dark:text-green-100">
+            <span aria-hidden="true">🌳</span>
+            {t('park.hasDsas', { park: parkWithDsas(result) })}
+          </p>
+        )}
 
         {busy && (
           <div className="rounded-2xl bg-white p-6 text-center shadow-sm dark:bg-stone-900" role="status">

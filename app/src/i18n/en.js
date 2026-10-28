@@ -22,7 +22,7 @@ export default {
   'onb.p2.title': 'Nearest legal spot',
   'onb.p2.body': 'If not, see the closest places where it is, with walking time.',
   'onb.p3.title': 'Your location stays private',
-  'onb.p3.body': 'Location is only used while the app is open, to check your spot. It is never stored.',
+  'onb.p3.body': "Location is only used while the app is open, to check your spot. It isn't kept, unless you add a spot or choose to share it.",
   'onb.guidance': 'Answers are guidance only. Always follow signs on site and NEA rules.',
   'onb.over21': "I'm 21 or older",
   'onb.under21': "I'm under 21",
@@ -273,4 +273,6 @@ export default {
   'detail.approximate': "Approximate location: walk there and look for the Designated Smoking Area sign.",
   'status.approx': "Approx. location",
   'rules.around': "+{m} m around",
+  'park.hasDsas': "{park} has designated smoking areas, usually near the carparks. Look for the signs.",
+  'park.listIntro': "These parks have designated smoking areas, usually near the carparks (NParks):",
 }
