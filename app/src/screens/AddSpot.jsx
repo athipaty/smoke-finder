@@ -10,7 +10,7 @@ import { COLOURS } from '../colours.js'
 
 const CHECK_DELAY_MS = 600
 const SG_CENTRE = { lat: 1.3521, lng: 103.8198 } // where a moderator without GPS starts
-const EMPTY_FORM = { name: '', sheltered: false, hasAshtray: false, hasSeating: false }
+const EMPTY_FORM = { name: '', hours: '', allDay: false, sheltered: false, hasAshtray: false, hasSeating: false }
 
 const FEATURES = [
   { key: 'sheltered', label: 'add.f.sheltered', hint: 'add.f.shelteredHint' },
@@ -100,7 +100,8 @@ export default function AddSpot() {
     if (blocked || submit.status === 'saving') return
     setSubmit({ status: 'saving', error: null, existing: null })
     try {
-      const spot = await addSpot({ ...pin, ...form, photo })
+      const { allDay, hours, ...rest } = form
+      const spot = await addSpot({ ...pin, ...rest, hours: allDay ? '24h' : hours, photo })
       if (!moderator) return openSpot(spot)
       setAdded((list) => [spot, ...list])
       setForm(EMPTY_FORM)
@@ -205,6 +206,28 @@ export default function AddSpot() {
             className="mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 dark:border-stone-700 dark:bg-stone-900"
           />
         </label>
+
+        <div className="mt-3 text-sm">
+          <label htmlFor="add-hours" className="font-medium">
+            {t('add.hours')}
+          </label>
+          <div className="mt-1 flex items-center gap-3">
+            <input
+              id="add-hours"
+              type="text"
+              maxLength={40}
+              value={form.allDay ? '' : form.hours}
+              disabled={form.allDay}
+              onChange={(e) => setForm({ ...form, hours: e.target.value })}
+              placeholder={form.allDay ? t('hours.24h') : t('add.hoursPlaceholder')}
+              className="min-w-0 flex-1 rounded-xl border border-stone-300 bg-white px-3 py-2 disabled:opacity-60 dark:border-stone-700 dark:bg-stone-900"
+            />
+            <label className="flex shrink-0 items-center gap-1.5">
+              <input type="checkbox" checked={form.allDay} onChange={(e) => setForm({ ...form, allDay: e.target.checked })} className="h-4 w-4 accent-go" />
+              {t('add.allDay')}
+            </label>
+          </div>
+        </div>
 
         <div className="mt-3 flex items-center gap-3">
           <label className="cursor-pointer rounded-xl bg-white px-4 py-2 text-sm font-medium shadow-sm dark:bg-stone-900">

@@ -61,6 +61,7 @@ const EDIT_FEATURES = [
 function EditSpot({ spot, onSave, onCancel, busy }) {
   const [form, setForm] = useState({
     name: spot.name ?? '',
+    hours: spot.hours ?? '',
     sheltered: spot.sheltered,
     hasAshtray: spot.hasAshtray,
     hasSeating: spot.hasSeating,
@@ -84,6 +85,17 @@ function EditSpot({ spot, onSave, onCancel, busy }) {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           placeholder="Unnamed spot"
+          className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-1.5 dark:border-stone-700 dark:bg-stone-900"
+        />
+      </label>
+      <label className="block">
+        <span className="font-medium">Opening hours</span>
+        <input
+          type="text"
+          maxLength={40}
+          value={form.hours}
+          onChange={(e) => setForm({ ...form, hours: e.target.value })}
+          placeholder='e.g. 7am-11pm, or "24h"; empty = unknown'
           className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-1.5 dark:border-stone-700 dark:bg-stone-900"
         />
       </label>
@@ -155,6 +167,7 @@ function SpotCard({ spot, onChange, onRemoved }) {
           <p className="text-sm text-stone-500 dark:text-stone-400">
             {spot.status}
             {spot.addedByModerator && ' (moderator)'} · added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
+            {spot.hours && ` · hours: ${spot.hours}`}
           </p>
           <p className="mt-1 text-sm">
             ✓ {spot.hereCount} still here · {spot.goneCount} gone · {spot.notAllowedCount} not allowed · {spot.badPhotoCount} photo reports

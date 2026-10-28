@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleMarker, Polyline } from 'react-leaflet'
 import { checkins, fetchDsas, fetchRoute, fetchSpot, voteSpot } from '../api.js'
-import { checkinKey, directionsUrl, distanceText, featureText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
+import { checkinKey, directionsUrl, distanceText, featureText, hoursText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
 import { useGeo } from '../geo.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import SgMap from '../components/SgMap.jsx'
@@ -311,6 +311,9 @@ export default function SpotDetail() {
         )}
         {spot.kind === 'dsa' && spot.description && <p className="text-stone-600 dark:text-stone-300">{spot.description}</p>}
         {features && <p className="text-stone-600 first-letter:uppercase dark:text-stone-300">{features}</p>}
+        {spot.kind === 'community' && spot.hours && (
+          <p className="text-stone-600 dark:text-stone-300">{t('detail.hours', { hours: hoursText(spot, t) })}</p>
+        )}
         {route ? (
           <p className="mt-1 text-stone-500 dark:text-stone-400">{t('detail.walkRoute', { n: route.minutes, d: distanceText(route.metres) })}</p>
         ) : (

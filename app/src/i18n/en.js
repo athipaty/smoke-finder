@@ -253,4 +253,9 @@ export default {
   'crash.reload': "Reload",
   'check.offlineAnswer': "No signal. This answer uses map data saved {when}, so recent changes aren't included.",
   'near.walkMin': "{n} min walk",
+  'add.hours': "Opening hours (optional)",
+  'add.hoursPlaceholder': "e.g. 7am–11pm",
+  'add.allDay': "Open 24 hours",
+  'hours.24h': "Open 24 hours",
+  'detail.hours': "Hours: {hours}",
 }

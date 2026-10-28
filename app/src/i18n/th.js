@@ -292,4 +292,9 @@ export default {
   'crash.reload': "โหลดใหม่",
   'check.offlineAnswer': "ไม่มีสัญญาณ คำตอบนี้ใช้ข้อมูลแผนที่ที่บันทึกไว้{when} จึงอาจไม่มีการเปลี่ยนแปลงล่าสุด",
   'near.walkMin': "เดิน {n} นาที",
+  'add.hours': "เวลาเปิด (ไม่บังคับ)",
+  'add.hoursPlaceholder': "เช่น 7:00–23:00",
+  'add.allDay': "เปิด 24 ชั่วโมง",
+  'hours.24h': "เปิด 24 ชั่วโมง",
+  'detail.hours': "เวลาเปิด: {hours}",
 }

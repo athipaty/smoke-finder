@@ -292,4 +292,9 @@ export default {
   'crash.reload': "Muat semula",
   'check.offlineAnswer': "Tiada isyarat. Jawapan ini guna data peta yang disimpan {when}, jadi perubahan terkini tidak termasuk.",
   'near.walkMin': "{n} min berjalan",
+  'add.hours': "Waktu dibuka (pilihan)",
+  'add.hoursPlaceholder': "cth. 7 pagi–11 malam",
+  'add.allDay': "Dibuka 24 jam",
+  'hours.24h': "Dibuka 24 jam",
+  'detail.hours': "Waktu: {hours}",
 }

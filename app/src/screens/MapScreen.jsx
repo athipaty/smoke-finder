@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Circle, CircleMarker, Tooltip } from 'react-leaflet'
 import { useGeo } from '../geo.jsx'
 import { fetchNearby, fetchRoutes } from '../api.js'
-import { distanceText, featureText, metresBetween, spotTitle, walkMinutes } from '../format.js'
+import { distanceText, featureText, hoursText, metresBetween, spotTitle, walkMinutes } from '../format.js'
 import { useFavourites } from '../favourites.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import { load, save, KEYS } from '../storage.js'
@@ -38,7 +38,7 @@ function subtitle(s, t) {
   if (s.kind === 'open') return t('spot.openSubtitle')
   const busy = s.busyNow > 0 ? t('busy.short', { n: s.busyNow }) : null
   if (s.kind === 'dsa') return [busy, t('spot.neaArea'), s.description].filter(Boolean).join(' · ')
-  return [busy, communityStatus(s, t), featureText(s, t)].filter(Boolean).join(' · ')
+  return [busy, communityStatus(s, t), featureText(s, t), hoursText(s, t)].filter(Boolean).join(' · ')
 }
 
 // All three kinds in one list, nearest first. Open areas are by definition

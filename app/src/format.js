@@ -31,6 +31,9 @@ export function sinceText(date, t) {
   return t('since.months', { n: Math.round(days / 30) })
 }
 
+// Opening hours as typed by whoever added the spot; "24h" is translated.
+export const hoursText = (s, t) => (s.hours === '24h' ? t('hours.24h') : s.hours ?? '')
+
 export const featureText = (s, t) =>
   [s.sheltered && t('feature.sheltered'), s.hasAshtray && t('feature.ashtray'), s.hasSeating && t('feature.seats')]
     .filter(Boolean)

@@ -292,4 +292,9 @@ export default {
   'crash.reload': "重新加载",
   'check.offlineAnswer': "没有信号。这个答案使用{when}保存的地图资料，最近的变动可能未包括在内。",
   'near.walkMin': "步行 {n} 分钟",
+  'add.hours': "开放时间（可选）",
+  'add.hoursPlaceholder': "例如 早上7点–晚上11点",
+  'add.allDay': "24小时开放",
+  'hours.24h': "24小时开放",
+  'detail.hours': "开放时间：{hours}",
 }
