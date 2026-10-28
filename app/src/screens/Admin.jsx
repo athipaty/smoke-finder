@@ -30,7 +30,8 @@ function Login({ onDone }) {
   }
 
   return (
-    <form onSubmit={submit} className="mx-auto mt-16 w-full max-w-xs px-4">
+    <main className="mx-auto mt-16 w-full max-w-xs px-4">
+    <form onSubmit={submit}>
       <h1 className="text-xl font-bold">Moderation</h1>
       <input
         type="password"
@@ -46,6 +47,7 @@ function Login({ onDone }) {
         {state.busy ? 'Logging in…' : 'Log in'}
       </button>
     </form>
+    </main>
   )
 }
 

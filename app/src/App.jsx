@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { GeoProvider } from './geo.jsx'
 import { FavouritesProvider } from './favourites.jsx'
-import { I18nProvider } from './i18n/index.jsx'
+import { I18nProvider, useI18n } from './i18n/index.jsx'
 import { load, save, KEYS } from './storage.js'
 import { ping } from './api.js'
 import TabBar from './components/TabBar.jsx'
@@ -21,6 +21,19 @@ const SpotDetail = lazy(loadSpotDetail)
 const AddSpot = lazy(() => import('./screens/AddSpot.jsx'))
 const Admin = lazy(() => import('./screens/Admin.jsx'))
 const Report = lazy(() => import('./screens/Report.jsx'))
+
+// Each screen gets its own page title, so screen readers and the browser's
+// tab list say where you are. The spot screen keeps the app name.
+const TITLES = { '/': 'check.title', '/map': 'near.title', '/add': 'add.title', '/rules': 'rules.title', '/report': 'report.title', '/privacy': 'privacy.title' }
+function PageTitle() {
+  const { pathname } = useLocation()
+  const { t } = useI18n()
+  useEffect(() => {
+    const key = TITLES[pathname]
+    document.title = key ? `${t(key)} · Smoke Finder SG` : 'Smoke Finder SG'
+  }, [pathname, t])
+  return null
+}
 
 // A crash shows the error screen for that screen only; the tab bar still works,
 // and moving to another screen starts fresh.
@@ -58,6 +71,7 @@ export default function App() {
         <GeoProvider>
           <FavouritesProvider>
             <BrowserRouter>
+              <PageTitle />
               <div className="mx-auto flex min-h-dvh max-w-lg flex-col pb-[calc(4rem+env(safe-area-inset-bottom))]">
                 <ScreenBoundary>
                 <Suspense fallback={null}>
