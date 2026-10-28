@@ -260,4 +260,11 @@ export default {
   'detail.hours': "Hours: {hours}",
   'near.needs': "Must have:",
   'near.noneNeeds': "No spots nearby are known to have that yet. Tap a filter to turn it off, or add a spot when you find one.",
+  'fix.button': "Details wrong? Fix them",
+  'fix.title': "What's there?",
+  'fix.yes': "Yes",
+  'fix.no': "No",
+  'fix.thanks': "Thanks. Each detail follows what most people say.",
+  'photo.adding': "Uploading…",
+  'photo.thanks': "Thanks for the photo.",
 }

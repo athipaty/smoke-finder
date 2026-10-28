@@ -299,4 +299,11 @@ export default {
   'detail.hours': "Waktu: {hours}",
   'near.needs': "Mesti ada:",
   'near.noneNeeds': "Belum ada tempat berdekatan yang diketahui mempunyainya. Ketik penapis untuk mematikannya, atau tambah tempat apabila anda menjumpainya.",
+  'fix.button': "Butiran salah? Betulkan",
+  'fix.title': "Apa yang ada di sana?",
+  'fix.yes': "Ya",
+  'fix.no': "Tidak",
+  'fix.thanks': "Terima kasih. Setiap butiran ikut jawapan kebanyakan orang.",
+  'photo.adding': "Memuat naik…",
+  'photo.thanks': "Terima kasih atas gambar.",
 }

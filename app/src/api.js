@@ -140,3 +140,19 @@ export const voteSpot = (id, type) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ type }),
   })
+
+// "Fix details": feature 'sheltered' | 'hasAshtray' | 'hasSeating', value true/false
+export const voteFeature = (id, feature, value) =>
+  request(`/spots/${id}/features`, {
+    method: 'POST',
+    device: true,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ feature, value }),
+  })
+
+// A photo for a community spot that has none
+export function addSpotPhoto(id, file) {
+  const form = new FormData()
+  form.set('photo', file)
+  return request(`/spots/${id}/photo`, { method: 'POST', body: form, device: true })
+}

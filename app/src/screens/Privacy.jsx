@@ -34,8 +34,8 @@ const SECTIONS = [
   {
     title: 'Spots, votes and photos you add',
     body: [
-      'Spots you add, their features and their photos are public. Photos are resized and their hidden location data (EXIF) is removed before they are stored. Please do not include people or private property.',
-      'Your votes ("Still here", "Gone", "Not allowed here", photo reports) are stored with the hashed ID so each phone counts once. Spots may be hidden automatically after reports, or removed by our moderators.',
+      'Spots you add, their features and their photos (including photos you add to an existing spot) are public. Photos are resized and their hidden location data (EXIF) is removed before they are stored. Please do not include people or private property.',
+      'Your votes ("Still here", "Gone", "Not allowed here", photo reports, and your answers when you fix a spot\u2019s details) are stored with the hashed ID so each phone counts once. Spots may be hidden automatically after reports, or removed by our moderators.',
     ],
   },
   {

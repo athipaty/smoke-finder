@@ -299,4 +299,11 @@ export default {
   'detail.hours': "开放时间：{hours}",
   'near.needs': "必须有：",
   'near.noneNeeds': "附近还没有已知具备这些条件的地点。点一下筛选条件即可关闭，或在找到时添加地点。",
+  'fix.button': "资料不对？来修正",
+  'fix.title': "那里有什么？",
+  'fix.yes': "有",
+  'fix.no': "没有",
+  'fix.thanks': "谢谢。每项资料以多数人的回答为准。",
+  'photo.adding': "正在上传…",
+  'photo.thanks': "谢谢你的照片。",
 }

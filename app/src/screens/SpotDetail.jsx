@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleMarker, Polyline } from 'react-leaflet'
-import { checkins, fetchDsas, fetchRoute, fetchSpot, voteSpot } from '../api.js'
+import { addSpotPhoto, checkins, fetchDsas, fetchRoute, fetchSpot, voteFeature, voteSpot } from '../api.js'
 import { checkinKey, directionsUrl, distanceText, featureText, hoursText, metresBetween, sinceText, spotTitle, walkMinutes } from '../format.js'
 import { useGeo } from '../geo.jsx'
 import { useI18n } from '../i18n/index.jsx'
@@ -99,6 +99,104 @@ function CommunityActions({ spot, onChange }) {
           {t('vote.reportPhoto')}
         </button>
       )}
+    </div>
+  )
+}
+
+const FIX_FEATURES = [
+  { key: 'sheltered', label: 'add.f.sheltered' },
+  { key: 'hasAshtray', label: 'add.f.ashtray' },
+  { key: 'hasSeating', label: 'add.f.seats' },
+]
+
+// "Details wrong?": anyone can say whether it's sheltered / has an ashtray /
+// has seats. Each detail follows what most people say (see the backend).
+function FixDetails({ spot, onChange }) {
+  const { t } = useI18n()
+  const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(null)
+  const [message, setMessage] = useState(null)
+
+  const answer = async (feature, value) => {
+    setBusy(feature)
+    setMessage(null)
+    try {
+      onChange(await voteFeature(spot.id, feature, value))
+      setMessage(t('fix.thanks'))
+    } catch (err) {
+      setMessage(err.message)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="mt-3 text-sm text-stone-500 underline dark:text-stone-400">
+        {t('fix.button')}
+      </button>
+    )
+  }
+  return (
+    <div className="mt-4 rounded-2xl bg-white p-3 shadow-sm dark:bg-stone-900">
+      <p className="text-sm font-semibold">{t('fix.title')}</p>
+      <ul className="mt-2 space-y-2">
+        {FIX_FEATURES.map((f) => {
+          const mine = spot.myFeatures?.[f.key]
+          const current = mine ?? spot[f.key]
+          return (
+            <li key={f.key} className="flex items-center justify-between gap-3 text-sm">
+              <span>{t(f.label)}</span>
+              <span className="flex shrink-0 gap-1" role="group" aria-label={t(f.label)}>
+                {[true, false].map((value) => (
+                  <button
+                    key={String(value)}
+                    type="button"
+                    disabled={busy !== null}
+                    aria-pressed={current === value}
+                    onClick={() => answer(f.key, value)}
+                    className={`rounded-lg px-3 py-1.5 font-medium disabled:opacity-60 ${
+                      current === value ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-stone-100 dark:bg-stone-800'
+                    }`}
+                  >
+                    {value ? t('fix.yes') : t('fix.no')}
+                  </button>
+                ))}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+      {message && (
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300" role="status">
+          {message}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// A photo for a spot that has none.
+function AddPhoto({ spot, onChange }) {
+  const { t } = useI18n()
+  const [state, setState] = useState({ busy: false, message: null })
+  const pick = async (file) => {
+    if (!file) return
+    setState({ busy: true, message: null })
+    try {
+      onChange(await addSpotPhoto(spot.id, file))
+      setState({ busy: false, message: t('photo.thanks') })
+    } catch (err) {
+      setState({ busy: false, message: err.message })
+    }
+  }
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-3">
+      <label className={`cursor-pointer rounded-xl bg-white px-4 py-2 text-sm font-medium shadow-sm dark:bg-stone-900 ${state.busy ? 'opacity-60' : ''}`}>
+        {state.busy ? t('photo.adding') : t('add.photo')}
+        <input type="file" accept="image/*" capture="environment" className="sr-only" disabled={state.busy} onChange={(e) => pick(e.target.files?.[0])} />
+      </label>
+      <span className="text-xs text-stone-500 dark:text-stone-400">{state.message ?? t('add.photoHint')}</span>
     </div>
   )
 }
@@ -341,7 +439,12 @@ export default function SpotDetail() {
           />
         )}
 
+        {spot.kind === 'community' && !removed && spot.canAddPhoto && !spot.photo && (
+          <AddPhoto spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />
+        )}
+
         {spot.kind === 'community' && !removed && <CommunityActions spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />}
+        {spot.kind === 'community' && !removed && <FixDetails spot={spot} onChange={(fresh) => setSpot((s) => ({ ...s, ...fresh }))} />}
 
         <div className="mt-auto pb-4 pt-6">
           <a
