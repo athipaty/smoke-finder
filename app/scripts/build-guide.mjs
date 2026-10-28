@@ -4,7 +4,7 @@
 // `vite build`. Rule names and reasons come from the app's own translations and
 // src/rules.js, so the guide and the checker never disagree; NEA areas come from
 // the live API (if that's unreachable the Orchard page links to the app instead).
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { RULES, NEA_SOURCE, RULES_CHECKED, PARKS_WITH_DSAS } from '../../src/rules.js'
 import en from '../src/i18n/en.js'
@@ -24,7 +24,9 @@ const LANGS = [
   { id: 'ta', name: 'தமிழ்', dict: ta, locale: 'ta-SG' },
   { id: 'th', name: 'ไทย', dict: th, locale: 'th-TH' },
 ]
-const SLUGS = ['where-can-i-smoke-in-singapore', 'orchard-road-smoking-areas', 'sentosa-smoking-areas', 'parks-with-smoking-areas']
+const SLUGS = ['where-can-i-smoke-in-singapore', 'orchard-road-smoking-areas', 'sentosa-smoking-areas', 'parks-with-smoking-areas', 'ntu-smoking-areas']
+// Operators' own lists (Sentosa, NTU): the same file the app's spots are imported from.
+const OPERATORS = JSON.parse(await readFile(join(import.meta.dirname, '..', '..', 'data', 'operator-spots.json'), 'utf8'))
 
 // Page wording not in the app's dictionaries. {n} = a number.
 const TEXT = {
@@ -160,12 +162,18 @@ const TEXT = {
   },
 }
 
-// Sentosa Development Corporation's list (sentosa.com.sg/smoking-prohibition-at-sentosa-beaches,
-// read 28 Oct 2026). Kept in English, as Sentosa publishes it.
-const SENTOSA = {
-  'Siloso Beach': ['Outside Beach Station Car Park, opposite Palawan Green', 'Outside Sapphire Pavilion', 'Siloso Point (Siloso Beach end)', 'Outside Beach Station Car Park, opposite Wings of Time'],
-  'Palawan Beach': ['Near the suspension bridge', 'Near FOC Sentosa, opposite Palawan East Restrooms', 'Near Palawan Kidz City'],
-  'Tanjong Beach': ['Middle of Tanjong Beach', 'Between Tanjong Beach Car Park and Tanjong Beach Club'],
+const NTU_TEXT = {
+  en: { title: 'NTU smoking areas', short: 'NTU', desc: "Nanyang Technological University's designated smoking areas on its campus. The rest of the campus is smoke-free.", intro: "NTU's campus is smoke-free, including halls and all buildings. Smoking is only allowed in these designated smoking areas (NTU's list as of {date}). Campus Security enforces it: a warning first, then fines from $200, and referral to NEA." },
+  zh: { title: '南大吸烟区', short: '南大', desc: '南洋理工大学校园内的指定吸烟区。校园其他地方禁止吸烟。', intro: '南大校园（包括宿舍和所有建筑）禁止吸烟，只能在以下指定吸烟区吸烟（南大名单，截至 {date}）。校园保安负责执法：先警告，之后罚款 200 元起，并转交环境局。' },
+  ms: { title: 'Kawasan merokok NTU', short: 'NTU', desc: 'Kawasan merokok yang ditetapkan di kampus Universiti Teknologi Nanyang. Bahagian lain kampus bebas asap rokok.', intro: 'Kampus NTU bebas asap rokok, termasuk asrama dan semua bangunan. Merokok hanya dibenarkan di kawasan ini (senarai NTU setakat {date}). Keselamatan Kampus menguatkuasakannya: amaran dahulu, kemudian denda dari $200 dan rujukan kepada NEA.' },
+  ta: { title: 'NTU புகைபிடிக்கும் பகுதிகள்', short: 'NTU', desc: 'நன்யாங் தொழில்நுட்பப் பல்கலைக்கழக வளாகத்தில் உள்ள புகைபிடிக்கும் பகுதிகள். வளாகத்தின் மற்ற இடங்களில் புகைபிடிக்கத் தடை.', intro: 'NTU வளாகம் முழுவதும் (விடுதிகள், அனைத்துக் கட்டடங்கள் உட்பட) புகைபிடிக்கத் தடை. இந்தப் பகுதிகளில் மட்டுமே அனுமதி (NTU பட்டியல், {date} நிலவரப்படி). வளாகப் பாதுகாப்புப் பிரிவு அமல்படுத்துகிறது: முதலில் எச்சரிக்கை, பிறகு $200 முதல் அபராதம், NEA-விடம் ஒப்படைப்பு.' },
+  th: { title: 'จุดสูบบุหรี่ NTU', short: 'NTU', desc: 'จุดสูบบุหรี่ที่กำหนดในมหาวิทยาลัยเทคโนโลยีหนานหยาง ส่วนอื่นของมหาวิทยาลัยห้ามสูบบุหรี่', intro: 'มหาวิทยาลัย NTU ห้ามสูบบุหรี่ทั่วทั้งพื้นที่ รวมถึงหอพักและอาคารทุกหลัง สูบได้เฉพาะในจุดที่กำหนดเหล่านี้ (รายการของ NTU ณ {date}) เจ้าหน้าที่รักษาความปลอดภัยเป็นผู้บังคับใช้: ตักเตือนก่อน จากนั้นปรับตั้งแต่ 200 ดอลลาร์ และส่งเรื่องให้ NEA' },
+}
+for (const [id, t] of Object.entries(NTU_TEXT)) {
+  TEXT[id].titles.push(t.title)
+  TEXT[id].short.push(t.short)
+  TEXT[id].desc.push(t.desc)
+  TEXT[id].ntuIntro = t.intro
 }
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
@@ -249,13 +257,32 @@ function orchardPage(L, dsas) {
   return layout(L, 1, `<p>${esc(T.orchardHistory)}</p>${list}<p class="muted small">${esc(T.source)}: NEA (data.gov.sg).</p>`)
 }
 
+// An operator's spots as cards grouped by area, in the operator's own (English) wording.
+function operatorList(list, T) {
+  const groups = new Map()
+  for (const s of list.spots) groups.set(s.group, [...(groups.get(s.group) ?? []), s])
+  const many = groups.size > 1
+  return [...groups]
+    .map(([group, spots]) => `${many ? `<h2 lang="en">${esc(group)}</h2>` : ''}<ul class="card" lang="en">${spots
+      .map((s) => `<li>${esc(s.official)}<br><span class="small"><a href="https://www.google.com/maps/search/?api=1&amp;query=${s.lat},${s.lng}">${esc(T.maps)}</a></span></li>`)
+      .join('')}</ul>`)
+    .join('')
+}
+
 function sentosaPage(L) {
   const T = TEXT[L.id]
+  const list = OPERATORS.sdc
   return layout(L, 2, `<p>${esc(T.sentosaIntro)}</p>
-${Object.entries(SENTOSA)
-  .map(([beach, places]) => `<h2 lang="en">${esc(beach)}</h2><ul class="card" lang="en">${places.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>`)
-  .join('')}
-<p class="muted small">${esc(T.sentosaNote)} ${esc(T.source)}: <a href="https://www.sentosa.com.sg/smoking-prohibition-at-sentosa-beaches">Sentosa</a>.</p>`)
+${operatorList(list, T)}
+<p class="muted small">${esc(T.sentosaNote)} ${esc(T.source)}: <a href="${list.source}">Sentosa</a>.</p>`)
+}
+
+function ntuPage(L) {
+  const T = TEXT[L.id]
+  const list = OPERATORS.ntu
+  return layout(L, 4, `<p>${esc(fill(T.ntuIntro, { date: list.listDate }))}</p>
+${operatorList(list, T)}
+<p class="muted small">${esc(T.sentosaNote)} ${esc(T.source)}: <a href="${list.source}">NTU</a>.</p>`)
 }
 
 function parksPage(L) {
@@ -277,7 +304,7 @@ try {
 const urls = ['/']
 for (const L of LANGS) {
   await mkdir(join(DIST, ...path(L.id, 'x').split('/').slice(1, -1)), { recursive: true })
-  const pages = [rulesPage(L), orchardPage(L, dsas), sentosaPage(L), parksPage(L)]
+  const pages = [rulesPage(L), orchardPage(L, dsas), sentosaPage(L), parksPage(L), ntuPage(L)]
   for (const [i, html] of pages.entries()) {
     await writeFile(join(DIST, ...path(L.id, SLUGS[i]).split('/').slice(1)), html)
     urls.push(path(L.id, SLUGS[i]))

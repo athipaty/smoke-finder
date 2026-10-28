@@ -12,6 +12,7 @@
     "build:data": "node scripts/build-zones.js",
     "data": "npm run fetch && npm run build:data",
     "import": "node --env-file-if-exists=.env scripts/import-mongo.js",
+    "import:operators": "node --env-file-if-exists=.env scripts/import-operator-spots.js",
     "check": "node src/cli.js",
     "spotcheck": "node scripts/spotcheck.js",
     "test": "node --test",

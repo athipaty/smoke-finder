@@ -1,0 +1,34 @@
+{
+  "_about": "Designated smoking areas from operators' own lists (not in NEA's data). The operators publish descriptions only, so each position is the named landmark (OneMap / OpenStreetMap) and the spots are marked approximate. Import with: npm run import:operators. 'official' is the operator's wording; 'name' is the short name shown in the app (max 60 characters).",
+  "sdc": {
+    "operator": "Sentosa Development Corporation",
+    "source": "https://www.sentosa.com.sg/smoking-prohibition-at-sentosa-beaches",
+    "listDate": null,
+    "read": "2026-10-28",
+    "spots": [
+      { "group": "Siloso Beach", "official": "Outside Beach Station Car Park - opposite Palawan Green", "name": "Siloso: Beach Station car park, opp Palawan Green", "lat": 1.2508, "lng": 103.8183, "landmark": "between Palawan Green and Beach Station Bus Terminal (OSM)" },
+      { "group": "Siloso Beach", "official": "Outside Sapphire Pavilion", "name": "Siloso: outside Sapphire Pavilion", "lat": 1.2555, "lng": 103.81289, "landmark": "Sapphire Pavilion (OSM)" },
+      { "group": "Siloso Beach", "official": "Siloso Point (Siloso Beach end)", "name": "Siloso Point (Siloso Beach end)", "lat": 1.25721, "lng": 103.81143, "landmark": "Siloso Point (OSM)" },
+      { "group": "Siloso Beach", "official": "Outside Beach Station Car Park - opposite Wings of Time", "name": "Siloso: Beach Station car park, opp Wings of Time", "lat": 1.2513, "lng": 103.8175, "landmark": "between Wings of Time and Beach Station (OSM)" },
+      { "group": "Palawan Beach", "official": "Near suspension bridge", "name": "Palawan Beach: near the suspension bridge", "lat": 1.24826, "lng": 103.82201, "landmark": "between Southernmost Point viewpoint and bus stop (OSM); bridge not mapped" },
+      { "group": "Palawan Beach", "official": "Near FOC Sentosa, opposite Palawan East Restrooms", "name": "Palawan: near FOC Sentosa, opp East Restrooms", "lat": 1.24684, "lng": 103.825, "landmark": "FOC Sentosa (OSM)" },
+      { "group": "Palawan Beach", "official": "Near Palawan Kidz City", "name": "Palawan: near Palawan Kidz City", "lat": 1.25085, "lng": 103.82035, "landmark": "Palawan Kidz City bus stop (OSM)" },
+      { "group": "Tanjong Beach", "official": "Middle of Tanjong Beach", "name": "Tanjong Beach: middle of the beach", "lat": 1.24172, "lng": 103.82897, "landmark": "Tanjong Beach centre (OSM)" },
+      { "group": "Tanjong Beach", "official": "In between Tanjong Beach Car Park and Tanjong Beach Club", "name": "Tanjong: between car park and Tanjong Beach Club", "lat": 1.24371, "lng": 103.82758, "landmark": "between Tanjong Beach car park and Tanjong Beach Club (OSM)" }
+    ]
+  },
+  "ntu": {
+    "operator": "Nanyang Technological University",
+    "source": "https://www.ntu.edu.sg/life-at-ntu/health-and-safety/policies/prohibition-of-smoking-on-ntu-campus-policy",
+    "listDate": "15 October 2025",
+    "read": "2026-10-28",
+    "spots": [
+      { "group": "NTU", "official": "DSA at the grass area between Block 56 of Hall 11 and Graduate Hall 1", "name": "NTU: between Hall 11 Blk 56 and Graduate Hall 1", "lat": 1.35532, "lng": 103.68698, "landmark": "midpoint of Hall 11 Blk 56 and Graduate Hall 1 (OneMap)" },
+      { "group": "NTU", "official": "DSA at Nanyang Executive Centre (NEC) next to Nanyang Meadows Block 96", "name": "NTU: Nanyang Executive Centre, by Nanyang Meadows 96", "lat": 1.3518, "lng": 103.68838, "landmark": "between NEC and Nanyang Meadows Blk 96 (OneMap, OSM)" },
+      { "group": "NTU", "official": "DSA at the grass area behind Block 7 of Hall 2", "name": "NTU: grass area behind Hall 2 Blk 7", "lat": 1.34876, "lng": 103.68455, "landmark": "Hall 2 Blk 7 (OneMap)" },
+      { "group": "NTU", "official": "DSA behind Student Activities Centre at North Spine", "name": "NTU: behind Student Activities Centre, North Spine", "lat": 1.34618, "lng": 103.68205, "landmark": "North Spine (OneMap); Student Activities Centre not mapped" },
+      { "group": "NTU", "official": "DSA at the grass area beside School of Chemistry, Chemical Engineering and Biotechnology (CCEB) facing Nanyang Drive", "name": "NTU: grass beside CCEB, facing Nanyang Drive", "lat": 1.34541, "lng": 103.67905, "landmark": "Chemical & Biomolecular Engineering Building, 62 Nanyang Drive (OneMap)" },
+      { "group": "NTU", "official": "DSA at the grass area near Block 40, 30 Nanyang Link", "name": "NTU: grass area near Hall 7 Blk 40 (30 Nanyang Link)", "lat": 1.3406, "lng": 103.68076, "landmark": "Hall 7 Blk 40, 30 Nanyang Link (OneMap)" }
+    ]
+  }
+}
