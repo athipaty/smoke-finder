@@ -283,4 +283,5 @@ export default {
   'search.near': "Berhampiran {name}",
   'search.backToMe': "Guna lokasi saya",
   'search.title': "Tempat berhampiran lokasi ini",
+  'detail.byModerator': "Ditambah oleh pasukan Smoke Finder",
 }

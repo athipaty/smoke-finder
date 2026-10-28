@@ -283,4 +283,5 @@ export default {
   'search.near': "{name} அருகில்",
   'search.backToMe': "என் இருப்பிடத்தைப் பயன்படுத்து",
   'search.title': "இந்த இடத்துக்கு அருகிலுள்ள இடங்கள்",
+  'detail.byModerator': "Smoke Finder குழுவால் சேர்க்கப்பட்டது",
 }

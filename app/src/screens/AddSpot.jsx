@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMapEvents } from 'react-leaflet'
 import { useGeo } from '../geo.jsx'
-import { addSpot, checkSpot } from '../api.js'
+import { addSpot, admin, checkSpot } from '../api.js'
 import { useI18n } from '../i18n/index.jsx'
 import SgMap from '../components/SgMap.jsx'
+import PlaceSearch from '../components/PlaceSearch.jsx'
 import { COLOURS } from '../colours.js'
 
 const CHECK_DELAY_MS = 600
+const SG_CENTRE = { lat: 1.3521, lng: 103.8198 } // where a moderator without GPS starts
+const EMPTY_FORM = { name: '', sheltered: false, hasAshtray: false, hasSeating: false }
 
 const FEATURES = [
   { key: 'sheltered', label: 'add.f.sheltered', hint: 'add.f.shelteredHint' },
@@ -43,9 +46,15 @@ export default function AddSpot() {
   const { geo, locate } = useGeo()
   const { t } = useI18n()
   const navigate = useNavigate()
+  // Moderators seed spots they know: anywhere (search a place), no GPS needed,
+  // and they stay on this screen to add the next one.
+  const [moderator] = useState(() => admin.loggedIn())
+  const [jumpTo, setJumpTo] = useState(null)
+  const [searching, setSearching] = useState(false)
+  const [added, setAdded] = useState([])
   const [pin, setPin] = useState(null)
   const [check, setCheck] = useState(null)
-  const [form, setForm] = useState({ name: '', sheltered: false, hasAshtray: false, hasSeating: false })
+  const [form, setForm] = useState(EMPTY_FORM)
   const [photo, setPhoto] = useState(null)
   const [preview, setPreview] = useState(null)
   const [submit, setSubmit] = useState({ status: 'idle', error: null, existing: null })
@@ -54,9 +63,11 @@ export default function AddSpot() {
     if (geo.status === 'idle') locate()
   }, [geo.status, locate])
 
+  const start = jumpTo ?? geo.coords ?? (moderator && geo.status !== 'locating' ? SG_CENTRE : null)
+
   useEffect(() => {
-    if (geo.coords && !pin) setPin({ lat: geo.coords.lat, lng: geo.coords.lng })
-  }, [geo.coords, pin])
+    if (start && !pin) setPin({ lat: start.lat, lng: start.lng })
+  }, [start, pin])
 
   // Check the pin against the rules shortly after it stops moving.
   useEffect(() => {
@@ -89,13 +100,18 @@ export default function AddSpot() {
     if (blocked || submit.status === 'saving') return
     setSubmit({ status: 'saving', error: null, existing: null })
     try {
-      openSpot(await addSpot({ ...pin, ...form, photo }))
+      const spot = await addSpot({ ...pin, ...form, photo })
+      if (!moderator) return openSpot(spot)
+      setAdded((list) => [spot, ...list])
+      setForm(EMPTY_FORM)
+      setPhoto(null)
+      setSubmit({ status: 'idle', error: null, existing: null })
     } catch (err) {
       setSubmit({ status: 'error', error: err.message, existing: err.body?.spot ?? null })
     }
   }
 
-  if (!geo.coords) {
+  if (!start) {
     return (
       <main className="flex flex-1 flex-col justify-center px-6 text-center">
         <h1 className="text-xl font-bold">{t('add.title')}</h1>
@@ -114,7 +130,7 @@ export default function AddSpot() {
   return (
     <main className="flex flex-1 flex-col">
       <div className="relative">
-        <SgMap center={geo.coords} fit={[geo.coords]} zoomControl={false} className="h-[36dvh] w-full">
+        <SgMap center={start} fit={[start]} zoomControl={false} className="h-[36dvh] w-full">
           <CentreTracker onMove={setPin} />
         </SgMap>
         {/* Fixed pin: the spot is wherever the map centre is. */}
@@ -128,11 +144,37 @@ export default function AddSpot() {
         >
           {t('add.cancel')}
         </Link>
+        {moderator && (
+          <button
+            type="button"
+            onClick={() => setSearching((s) => !s)}
+            className="absolute right-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[400] rounded-full bg-white/95 px-4 py-2 text-sm font-semibold shadow dark:bg-stone-900/95"
+          >
+            {t('search.short')}
+          </button>
+        )}
       </div>
+      {searching && (
+        <div className="px-4">
+          <PlaceSearch
+            onPick={(p) => {
+              setSearching(false)
+              setJumpTo({ lat: p.lat, lng: p.lng })
+            }}
+            onClose={() => setSearching(false)}
+          />
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="flex flex-1 flex-col px-4 pt-4">
         <h1 className="text-xl font-bold">{t('add.title')}</h1>
         <p className="text-sm text-stone-500 dark:text-stone-400">{t('add.moveMap')}</p>
+        {moderator && (
+          <p className="mt-2 rounded-xl px-3 py-2 text-sm text-white" style={{ backgroundColor: COLOURS.community }} lang="en">
+            Moderator: add spots anywhere (Search to jump), no daily limit. They show as verified.
+            {added.length > 0 && ` Added this session: ${added.length} (last: ${added[0].name ?? 'unnamed spot'}).`}
+          </p>
+        )}
         <div className="mt-2 min-h-5" aria-live="polite">
           <PinCheck check={check} />
         </div>

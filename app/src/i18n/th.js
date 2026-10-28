@@ -283,4 +283,5 @@ export default {
   'search.near': "ใกล้ {name}",
   'search.backToMe': "ใช้ตำแหน่งของฉัน",
   'search.title': "จุดใกล้สถานที่นี้",
+  'detail.byModerator': "เพิ่มโดยทีม Smoke Finder",
 }

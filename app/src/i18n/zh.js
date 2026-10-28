@@ -283,4 +283,5 @@ export default {
   'search.near': "{name} 附近",
   'search.backToMe': "用我的位置",
   'search.title': "这个地点附近的地方",
+  'detail.byModerator': "由 Smoke Finder 团队添加",
 }

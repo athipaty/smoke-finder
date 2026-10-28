@@ -38,6 +38,7 @@ async function spotFromLink(params) {
 function statusText(s, t) {
   const confirmed = t('detail.lastConfirmed', { when: sinceText(s.lastConfirmedAt, t) })
   if (s.stale) return `${confirmed} · ${t('detail.mayBeOld')}`
+  if (s.byModerator) return `${t('detail.byModerator')} · ${confirmed}`
   if (s.status === 'verified') return `${t('detail.verifiedBy', { n: s.hereCount })} · ${confirmed}`
   return `${t('detail.unverifiedBy', { n: s.hereCount })} · ${confirmed}`
 }

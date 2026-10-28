@@ -244,4 +244,5 @@ export default {
   'search.near': "Near {name}",
   'search.backToMe': "Use my location",
   'search.title': "Spots near this place",
+  'detail.byModerator': "Added by the Smoke Finder team",
 }

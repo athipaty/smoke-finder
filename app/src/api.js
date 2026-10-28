@@ -57,12 +57,15 @@ export const sendReport = (report) =>
 export const ping = () => request('/ping', { method: 'POST', device: true })
 
 // F5. `spot`: { lat, lng, name, sheltered, hasAshtray, hasSeating, photo?: File }
+// A logged-in moderator's token goes along: their spots skip the daily limit
+// and count as verified.
 export function addSpot(spot) {
   const form = new FormData()
   for (const [key, value] of Object.entries(spot)) {
     if (value != null && value !== '') form.set(key, value instanceof File ? value : String(value))
   }
-  return request('/spots', { method: 'POST', body: form, device: true })
+  const token = readToken()
+  return request('/spots', { method: 'POST', body: form, device: true, headers: token ? { Authorization: `Bearer ${token}` } : {} })
 }
 
 // Rule-change alerts (see alerts.js)

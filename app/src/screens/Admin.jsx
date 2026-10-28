@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { admin } from '../api.js'
 import { featureText, sinceText } from '../format.js'
 import { useI18n } from '../i18n/index.jsx'
@@ -168,6 +169,9 @@ export default function Admin() {
     <main className="px-4 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))]">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Moderation</h1>
+        <Link to="/add" className="ml-auto mr-4 text-sm font-medium text-go underline dark:text-go-dark">
+          Add spots anywhere
+        </Link>
         <button
           type="button"
           onClick={() => {
