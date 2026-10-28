@@ -26,5 +26,25 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Safety net: if the app hasn't started after 10 s (a broken saved copy, or
+      // a browser too old for it), say so instead of leaving a blank screen.
+      // Reload clears the saved copy first. React replaces this once it starts.
+      setTimeout(function () {
+        var root = document.getElementById('root')
+        if (!root || root.children.length) return
+        root.innerHTML =
+          '<div style="font-family:system-ui,sans-serif;max-width:22rem;margin:30vh auto 0;padding:0 1.5rem;text-align:center;color:#1c1917">' +
+          '<p style="font-size:1.25rem;font-weight:700;margin:0">The app didn’t load</p>' +
+          '<p style="margin:.5rem 0 1.5rem;color:#57534e">Tap Reload. If it keeps happening, check your internet connection.</p>' +
+          '<button id="sf-reload" style="font:inherit;font-weight:600;color:#fff;background:#1b7d44;border:0;border-radius:.75rem;padding:.875rem 2rem">Reload</button></div>'
+        document.getElementById('sf-reload').onclick = function () {
+          var jobs = []
+          if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister() })) }))
+          if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k) })) }))
+          Promise.all(jobs).catch(function () {}).then(function () { location.reload() })
+        }
+      }, 10000)
+    </script>
   </body>
 </html>

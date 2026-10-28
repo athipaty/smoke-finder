@@ -1,7 +1,9 @@
 // Service worker: keeps the app itself (page, scripts, styles, icons) so it
 // opens without signal, and shows rule-change alerts. API answers and map
 // tiles are never cached here; Nearby keeps its own last results.
-const CACHE = 'app-v1'
+// v2: v1 could hold a web page saved in place of a script (see keep()); a new
+// name makes every phone drop it on the next update.
+const CACHE = 'app-v2'
 const SHELL = ['/', '/manifest.webmanifest', '/icon.svg', '/icon-192.png']
 
 // Precache the page plus the scripts and styles it links to.
@@ -11,7 +13,10 @@ async function precache() {
   const html = await res.clone().text()
   const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((m) => m[1])
   await cache.put('/', res)
-  await cache.addAll([...SHELL.slice(1), ...assets])
+  for (const path of [...SHELL.slice(1), ...assets]) {
+    const file = await fetch(path, { cache: 'no-cache' })
+    if (file.ok && !(file.headers.get('content-type') || '').includes('text/html')) await cache.put(path, file)
+  }
 }
 
 self.addEventListener('install', (event) => {
@@ -28,8 +33,14 @@ self.addEventListener('activate', (event) => {
   )
 })
 
+// Saves a copy, but never a web page in place of a script or style: a missing
+// file used to come back as the app page with status 200, and a saved copy of
+// that left the app blank for good.
 function keep(key, res) {
   if (!res.ok) return
+  const type = res.headers.get('content-type') || ''
+  const path = new URL(typeof key === 'string' ? key : key.url, self.location.origin).pathname
+  if (path !== '/' && type.includes('text/html')) return
   const copy = res.clone() // clone now, before the page reads the body
   caches.open(CACHE).then((c) => c.put(key, copy))
 }
