@@ -48,10 +48,74 @@ function Login({ onDone }) {
   )
 }
 
+const EDIT_FEATURES = [
+  { key: 'sheltered', label: 'Sheltered' },
+  { key: 'hasAshtray', label: 'Ashtray or bin' },
+  { key: 'hasSeating', label: 'Seats' },
+]
+
+// Name, features, and whether the moderator vouches for the spot.
+function EditSpot({ spot, onSave, onCancel, busy }) {
+  const [form, setForm] = useState({
+    name: spot.name ?? '',
+    sheltered: spot.sheltered,
+    hasAshtray: spot.hasAshtray,
+    hasSeating: spot.hasSeating,
+    verified: spot.addedByModerator,
+  })
+  const tick = (key) => (e) => setForm({ ...form, [key]: e.target.checked })
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave(form)
+      }}
+      className="mt-3 space-y-2 rounded-xl bg-stone-50 p-3 text-sm dark:bg-stone-800/60"
+    >
+      <label className="block">
+        <span className="font-medium">Name</span>
+        <input
+          type="text"
+          maxLength={60}
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Unnamed spot"
+          className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-1.5 dark:border-stone-700 dark:bg-stone-900"
+        />
+      </label>
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {EDIT_FEATURES.map((f) => (
+          <label key={f.key} className="flex items-center gap-1.5">
+            <input type="checkbox" checked={form[f.key]} onChange={tick(f.key)} className="h-4 w-4 accent-go" />
+            {f.label}
+          </label>
+        ))}
+      </div>
+      <label className="flex items-start gap-1.5">
+        <input type="checkbox" checked={form.verified} onChange={tick('verified')} className="mt-0.5 h-4 w-4 accent-go" />
+        <span>
+          Verified by moderator
+          <span className="block text-xs text-stone-500 dark:text-stone-400">Shows as "Added by the Smoke Finder team". Off: verified only after 3 "Still here" votes.</span>
+        </span>
+      </label>
+      <div className="flex gap-2 pt-1">
+        <button type="submit" disabled={busy} className="rounded-lg bg-stone-900 px-3 py-1.5 font-semibold text-white disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900">
+          {busy ? 'Saving…' : 'Save'}
+        </button>
+        <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1.5 font-medium text-stone-600 dark:text-stone-300">
+          Cancel
+        </button>
+      </div>
+    </form>
+  )
+}
+
 function SpotCard({ spot, onChange, onRemoved }) {
   const { t } = useI18n() // moderation stays in English; the shared helpers just need t
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [editing, setEditing] = useState(false)
   const [error, setError] = useState(null)
 
   const run = async (fn) => {
@@ -67,6 +131,11 @@ function SpotCard({ spot, onChange, onRemoved }) {
   }
   const photoAction = (action) => run(async () => onChange(await admin.call(`/spots/${spot.id}/photo`, { method: 'POST', body: { action } })))
   const restore = () => run(async () => onChange(await admin.call(`/spots/${spot.id}/restore`, { method: 'POST' })))
+  const save = (body) =>
+    run(async () => {
+      onChange(await admin.call(`/spots/${spot.id}`, { method: 'PATCH', body }))
+      setEditing(false)
+    })
   const remove = () =>
     run(async () => {
       await admin.call(`/spots/${spot.id}`, { method: 'DELETE' })
@@ -81,7 +150,8 @@ function SpotCard({ spot, onChange, onRemoved }) {
         <div className="min-w-0">
           <p className="font-semibold">{spot.name ?? 'Unnamed spot'}</p>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            {spot.status} · added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
+            {spot.status}
+            {spot.addedByModerator && ' (moderator)'} · added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
           </p>
           <p className="mt-1 text-sm">
             ✓ {spot.hereCount} still here · {spot.goneCount} gone · {spot.notAllowedCount} not allowed · {spot.badPhotoCount} photo reports
@@ -102,7 +172,14 @@ function SpotCard({ spot, onChange, onRemoved }) {
         )}
       </div>
 
+      {editing && <EditSpot spot={spot} busy={busy} onSave={save} onCancel={() => setEditing(false)} />}
+
       <div className="mt-3 flex flex-wrap gap-2">
+        {!editing && (
+          <button type="button" disabled={busy} onClick={() => setEditing(true)} className={button}>
+            Edit
+          </button>
+        )}
         {spot.status === 'hidden' && (
           <button type="button" disabled={busy} onClick={restore} className={button}>
             Restore spot
@@ -142,22 +219,29 @@ export default function Admin() {
   const [loggedIn, setLoggedIn] = useState(admin.loggedIn)
   const [view, setView] = useState('spots')
   const [filter, setFilter] = useState('review')
+  const [query, setQuery] = useState('')
+  const [q, setQ] = useState('') // query, applied a moment after typing stops
   const [state, setState] = useState({ status: 'idle', spots: [], counts: {}, error: null })
 
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: 'loading', error: null }))
     try {
-      const { spots, counts } = await admin.call(`/spots?filter=${filter}`)
+      const { spots, counts } = await admin.call(`/spots?${new URLSearchParams({ filter, ...(q && { q }) })}`)
       setState({ status: 'done', spots, counts, error: null })
     } catch (err) {
       if (err.status === 401) setLoggedIn(false)
       setState((s) => ({ ...s, status: 'error', error: err.message }))
     }
-  }, [filter])
+  }, [filter, q])
 
   useEffect(() => {
     if (loggedIn) load()
   }, [loggedIn, load])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setQ(query.trim()), 400)
+    return () => clearTimeout(timer)
+  }, [query])
 
   if (!loggedIn) return <Login onDone={() => setLoggedIn(true)} />
 
@@ -227,6 +311,15 @@ export default function Admin() {
               </button>
             ))}
           </div>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search spots by name"
+            aria-label="Search spots by name"
+            maxLength={60}
+            className="mt-3 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm dark:border-stone-700 dark:bg-stone-900"
+          />
 
           {state.status === 'loading' && <p className="mt-4 text-stone-500" role="status">Loading…</p>}
           {state.error && <p className="mt-4 text-stop dark:text-stop-dark" role="alert">{state.error}</p>}
