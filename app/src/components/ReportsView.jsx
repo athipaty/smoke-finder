@@ -4,7 +4,7 @@ import { sinceText } from '../format.js'
 import { useI18n } from '../i18n/index.jsx'
 
 // User problem reports, for moderators (English only, like the rest of /admin).
-const KIND_LABEL = { wrong_answer: 'Answer looks wrong', spot: 'Spot or photo', app: 'App problem', other: 'Other' }
+const KIND_LABEL = { wrong_answer: '🧭 Answer looks wrong', spot: '📍 Spot or photo', app: '📱 App problem', other: '💬 Other' }
 const VERDICT_LABEL = { green: 'allowed', amber: 'check the signs', red: 'not allowed' }
 
 export default function ReportsView() {

@@ -126,6 +126,30 @@ function EditSpot({ spot, onSave, onCancel, busy }) {
   )
 }
 
+// Status as a coloured pill; problems as chips that stand out only when non-zero.
+const STATUS_PILL = {
+  verified: 'bg-green-100 text-green-900 dark:bg-green-950 dark:text-green-100',
+  unverified: 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200',
+  hidden: 'bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100',
+}
+function Pill({ className, children }) {
+  return <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${className}`}>{children}</span>
+}
+function Count({ icon, n, label, warn }) {
+  const bad = warn && n > 0
+  return (
+    <span
+      className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium ${
+        bad ? 'bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-100' : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300'
+      }`}
+      title={label}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {n} <span className="sr-only">{label}</span>
+    </span>
+  )
+}
+
 function SpotCard({ spot, onChange, onRemoved }) {
   const { t } = useI18n() // moderation stays in English; the shared helpers just need t
   const [busy, setBusy] = useState(false)
@@ -163,28 +187,34 @@ function SpotCard({ spot, onChange, onRemoved }) {
     <li className="rounded-2xl bg-white p-4 shadow-sm dark:bg-stone-900">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-semibold">{spot.name ?? 'Unnamed spot'}</p>
+          <div className="flex flex-wrap gap-1.5">
+            <Pill className={STATUS_PILL[spot.status]}>{spot.status}</Pill>
+            {spot.addedByModerator && <Pill className="bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100">moderator</Pill>}
+            {spot.source === 'sdc' && <Pill className="bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100">Sentosa list</Pill>}
+            {spot.approximate && <Pill className="bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100">approximate</Pill>}
+          </div>
+          <p className="mt-1.5 font-semibold">{spot.name ?? 'Unnamed spot'}</p>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            {spot.status}
-            {spot.addedByModerator && ' (moderator)'}
-            {spot.source === 'sdc' && ' · Sentosa list'}
-            {spot.approximate && ' · APPROXIMATE position'} · added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
-            {spot.hours && ` · hours: ${spot.hours}`}
+            added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
+            {spot.hours && ` · 🕒 ${spot.hours}`}
           </p>
-          <p className="mt-1 text-sm">
-            ✓ {spot.hereCount} still here · {spot.goneCount} gone · {spot.notAllowedCount} not allowed · {spot.badPhotoCount} photo reports
-          </p>
-          <a
-            href={`https://www.google.com/maps?q=${spot.lat},${spot.lng}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-[#7c3aed] underline"
-          >
-            Open in Google Maps
-          </a>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <Count icon="✓" n={spot.hereCount} label="still here" />
+            <Count icon="👻" n={spot.goneCount} label="gone" warn />
+            <Count icon="🚫" n={spot.notAllowedCount} label="not allowed" warn />
+            <Count icon="📷" n={spot.badPhotoCount} label="photo reports" warn />
+            <a
+              href={`https://www.google.com/maps?q=${spot.lat},${spot.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-stone-100 px-2 py-1 text-xs font-medium text-violet-800 dark:bg-stone-800 dark:text-violet-200"
+            >
+              📍 Map
+            </a>
+          </div>
         </div>
         {spot.photoUrl && (
-          <a href={spot.photoUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
+          <a href={spot.photoUrl} target="_blank" rel="noopener noreferrer" className="shrink-0" aria-label="Open photo full size">
             <img src={spot.photoUrl} alt="" className={`h-20 w-20 rounded-lg object-cover ${spot.photoHidden ? 'opacity-40' : ''}`} />
           </a>
         )}
@@ -314,7 +344,8 @@ export default function Admin() {
       ) : (
         <>
           <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
-            {c.verified ?? 0} verified · {c.unverified ?? 0} unverified · {c.hidden ?? 0} hidden
+            <span className="font-semibold text-green-800 dark:text-green-300">{c.verified ?? 0} verified</span> · {c.unverified ?? 0} unverified ·{' '}
+            <span className={c.hidden ? 'font-semibold text-red-800 dark:text-red-300' : ''}>{c.hidden ?? 0} hidden</span>
           </p>
 
           <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
