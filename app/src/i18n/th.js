@@ -311,4 +311,5 @@ export default {
   'detail.bySdc': "ประกาศโดย Sentosa Development Corporation",
   'detail.approximate': "ตำแหน่งโดยประมาณ: เดินไปที่นั่นแล้วมองหาป้ายจุดสูบบุหรี่ที่กำหนด",
   'status.approx': "ตำแหน่งโดยประมาณ",
+  'rules.around': "+ รอบ ๆ {m} ม.",
 }

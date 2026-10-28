@@ -311,4 +311,5 @@ export default {
   'detail.bySdc': "由圣淘沙发展局公布",
   'detail.approximate': "位置为大约位置：请走过去寻找指定吸烟区的标志。",
   'status.approx': "大约位置",
+  'rules.around': "及周围 {m} 米",
 }

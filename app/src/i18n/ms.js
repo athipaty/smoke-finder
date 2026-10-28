@@ -311,4 +311,5 @@ export default {
   'detail.bySdc': "Disenaraikan oleh Perbadanan Pembangunan Sentosa",
   'detail.approximate': "Lokasi anggaran: pergi ke sana dan cari papan tanda Kawasan Merokok yang Ditetapkan.",
   'status.approx': "Lokasi anggaran",
+  'rules.around': "+{m} m sekeliling",
 }

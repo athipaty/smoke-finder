@@ -272,4 +272,5 @@ export default {
   'detail.bySdc': "Listed by Sentosa Development Corporation",
   'detail.approximate': "Approximate location: walk there and look for the Designated Smoking Area sign.",
   'status.approx': "Approx. location",
+  'rules.around': "+{m} m around",
 }
