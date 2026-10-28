@@ -15,6 +15,8 @@ const CASES = [
   { place: 'NEA DSA: The Paragon (side of building)', lat: 1.3040475, lng: 103.8350909, expect: 'green', accuracyM: 5 },
   { place: 'Changi Airport T3, inside the terminal', lat: 1.3555, lng: 103.9865, expect: 'red' },
   { place: 'Tiny open field, Pulau Ubin (far from buildings)', lat: 1.4150, lng: 103.9750, expect: 'green' },
+  // expectRule: the answer must also name this rule, not just be red for another reason.
+  { place: 'Taxi stand F02 outside Ang Mo Kio MRT', lat: 1.3698269, lng: 103.8494387, expect: 'red', expectRule: 'taxi_stand' },
 ]
 
 const data = JSON.parse(await readFile(join(import.meta.dirname, '..', 'data', 'zones.json'), 'utf8'))
@@ -24,7 +26,7 @@ let ok = 0
 const started = performance.now()
 for (const c of CASES) {
   const r = check(c)
-  const pass = r.verdict === c.expect
+  const pass = r.verdict === c.expect && (!c.expectRule || r.reasons.some((x) => x.rule === c.expectRule))
   if (pass) ok++
   const why = r.designatedArea ? `DSA ${r.designatedArea.name}` : r.reasons.slice(0, 2).map((x) => `${x.rule}${x.name ? `:${x.name}` : ''}`).join(', ')
   console.log(`${pass ? 'PASS' : 'LOOK'}  ${c.place}: ${r.verdict} (expected ${c.expect})  ${why}`)

@@ -51,6 +51,12 @@ const SECTIONS = [
     ],
   },
   {
+    title: 'Error reports',
+    body: [
+      'If the app hits an error, it sends our server the error message, technical details of where in the app it happened, the page (for example "/map"), the app version and your browser type (for example "Chrome Android"). No location, ID or personal details. Error reports are deleted 30 days after the error was last seen.',
+    ],
+  },
+  {
     title: 'Things kept only on your phone',
     body: [
       'Your saved spots, language, your answer to the age question and similar settings stay in your browser on your phone. So does your last Nearby list (up to 7 days old), so it can be shown when you have no signal. Clearing the browser data for this site removes them.',

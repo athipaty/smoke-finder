@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { GeoProvider } from './geo.jsx'
 import { FavouritesProvider } from './favourites.jsx'
 import { I18nProvider } from './i18n/index.jsx'
 import { load, save, KEYS } from './storage.js'
 import { ping } from './api.js'
 import TabBar from './components/TabBar.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import Onboarding from './screens/Onboarding.jsx'
 import Check from './screens/Check.jsx'
 import Rules from './screens/Rules.jsx'
@@ -20,6 +21,13 @@ const SpotDetail = lazy(loadSpotDetail)
 const AddSpot = lazy(() => import('./screens/AddSpot.jsx'))
 const Admin = lazy(() => import('./screens/Admin.jsx'))
 const Report = lazy(() => import('./screens/Report.jsx'))
+
+// A crash shows the error screen for that screen only; the tab bar still works,
+// and moving to another screen starts fresh.
+function ScreenBoundary({ children }) {
+  const { pathname } = useLocation()
+  return <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
+}
 
 // Today's date in Singapore, to ping at most once a day.
 const sgToday = () => new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
@@ -51,6 +59,7 @@ export default function App() {
           <FavouritesProvider>
             <BrowserRouter>
               <div className="mx-auto flex min-h-dvh max-w-lg flex-col pb-[calc(4rem+env(safe-area-inset-bottom))]">
+                <ScreenBoundary>
                 <Suspense fallback={null}>
                   <Routes>
                     <Route path="/" element={<Check />} />
@@ -64,6 +73,7 @@ export default function App() {
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Suspense>
+                </ScreenBoundary>
               </div>
               <TabBar />
             </BrowserRouter>

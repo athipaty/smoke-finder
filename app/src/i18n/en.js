@@ -248,4 +248,7 @@ export default {
   'rule.taxi_stand.label': "Taxi stand or queue area",
   'rule.taxi_stand.reason': "Smoking is banned in designated queue areas, such as taxi stands.",
   'rules.checked': "Checked against NEA’s list (updated {nea}) on {on}.",
+  'crash.title': "Something went wrong",
+  'crash.body': "Sorry, this screen hit a problem. It has been reported. Please reload the app.",
+  'crash.reload': "Reload",
 }

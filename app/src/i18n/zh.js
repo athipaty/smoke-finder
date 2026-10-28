@@ -287,4 +287,7 @@ export default {
   'rule.taxi_stand.label': "德士站或排队区",
   'rule.taxi_stand.reason': "指定排队区（例如德士站）禁止吸烟。",
   'rules.checked': "已于 {on} 对照 NEA 的清单（更新于 {nea}）核对。",
+  'crash.title': "出了点问题",
+  'crash.body': "抱歉，这个页面出现问题，已自动报告。请重新加载应用。",
+  'crash.reload': "重新加载",
 }

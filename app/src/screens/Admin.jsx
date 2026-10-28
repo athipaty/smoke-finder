@@ -5,6 +5,7 @@ import { featureText, sinceText } from '../format.js'
 import { useI18n } from '../i18n/index.jsx'
 import MetricsView from '../components/MetricsView.jsx'
 import ReportsView from '../components/ReportsView.jsx'
+import ErrorsView from '../components/ErrorsView.jsx'
 
 const FILTERS = [
   { id: 'review', label: 'Needs review' },
@@ -272,6 +273,7 @@ export default function Admin() {
           { id: 'spots', label: 'Spots' },
           { id: 'reports', label: 'Reports' },
           { id: 'metrics', label: 'Metrics' },
+          { id: 'errors', label: 'Errors' },
         ].map((v) => (
           <button
             key={v.id}
@@ -290,6 +292,8 @@ export default function Admin() {
         <MetricsView />
       ) : view === 'reports' ? (
         <ReportsView />
+      ) : view === 'errors' ? (
+        <ErrorsView />
       ) : (
         <>
           <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">

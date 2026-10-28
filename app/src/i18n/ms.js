@@ -287,4 +287,7 @@ export default {
   'rule.taxi_stand.label': "Perhentian teksi atau kawasan beratur",
   'rule.taxi_stand.reason': "Merokok dilarang di kawasan beratur yang ditetapkan, seperti perhentian teksi.",
   'rules.checked': "Disemak dengan senarai NEA (dikemas kini {nea}) pada {on}.",
+  'crash.title': "Ada masalah",
+  'crash.body': "Maaf, skrin ini mengalami masalah. Ia telah dilaporkan. Sila muat semula aplikasi.",
+  'crash.reload': "Muat semula",
 }
