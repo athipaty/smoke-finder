@@ -166,7 +166,9 @@ function SpotCard({ spot, onChange, onRemoved }) {
           <p className="font-semibold">{spot.name ?? 'Unnamed spot'}</p>
           <p className="text-sm text-stone-500 dark:text-stone-400">
             {spot.status}
-            {spot.addedByModerator && ' (moderator)'} · added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
+            {spot.addedByModerator && ' (moderator)'}
+            {spot.source === 'sdc' && ' · Sentosa list'}
+            {spot.approximate && ' · APPROXIMATE position'} · added {sinceText(spot.createdAt, t)} · {featureText(spot, t) || 'no features ticked'}
             {spot.hours && ` · hours: ${spot.hours}`}
           </p>
           <p className="mt-1 text-sm">

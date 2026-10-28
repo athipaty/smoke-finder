@@ -267,4 +267,9 @@ export default {
   'fix.thanks': "Thanks. Each detail follows what most people say.",
   'photo.adding': "Uploading…",
   'photo.thanks': "Thanks for the photo.",
+  'kind.sdc.badge': "Sentosa smoking area",
+  'kind.sdc.note': "A designated smoking area on Sentosa's own list. Smoking on the beach itself is fined, so use the marked area.",
+  'detail.bySdc': "Listed by Sentosa Development Corporation",
+  'detail.approximate': "Approximate location: walk there and look for the Designated Smoking Area sign.",
+  'status.approx': "Approx. location",
 }

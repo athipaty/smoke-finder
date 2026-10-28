@@ -46,6 +46,7 @@ function withRoutes(spots, routes) {
 }
 
 function communityStatus(s, t) {
+  if (s.approximate) return t('status.approx')
   if (s.stale) return t('status.stale')
   return s.status === 'verified' ? t('status.verified') : t('status.unverified')
 }

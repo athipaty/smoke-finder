@@ -306,4 +306,9 @@ export default {
   'fix.thanks': "谢谢。每项资料以多数人的回答为准。",
   'photo.adding': "正在上传…",
   'photo.thanks': "谢谢你的照片。",
+  'kind.sdc.badge': "圣淘沙吸烟区",
+  'kind.sdc.note': "圣淘沙公布的指定吸烟区。在海滩上吸烟会被罚款，请在标示的区域吸烟。",
+  'detail.bySdc': "由圣淘沙发展局公布",
+  'detail.approximate': "位置为大约位置：请走过去寻找指定吸烟区的标志。",
+  'status.approx': "大约位置",
 }

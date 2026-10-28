@@ -35,9 +35,13 @@ async function spotFromLink(params) {
   return null
 }
 
+// Sentosa's own smoking areas are stored as community spots with source "sdc".
+const kindKey = (s) => (s.source === 'sdc' ? 'sdc' : s.kind)
+
 function statusText(s, t) {
   const confirmed = t('detail.lastConfirmed', { when: sinceText(s.lastConfirmedAt, t) })
   if (s.stale) return `${confirmed} · ${t('detail.mayBeOld')}`
+  if (s.source === 'sdc') return t('detail.bySdc')
   if (s.byModerator) return `${t('detail.byModerator')} · ${confirmed}`
   if (s.status === 'verified') return `${t('detail.verifiedBy', { n: s.hereCount })} · ${confirmed}`
   return `${t('detail.unverifiedBy', { n: s.hereCount })} · ${confirmed}`
@@ -389,7 +393,7 @@ export default function SpotDetail() {
 
       <section className="flex flex-1 flex-col px-4 pt-4">
         <span className="self-start rounded-full px-3 py-1 text-xs font-semibold text-white" style={{ backgroundColor: colour }}>
-          {t(`kind.${spot.kind}.badge`)}
+          {t(`kind.${kindKey(spot)}.badge`)}
         </span>
         <div className="mt-2 flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold">{title}</h1>
@@ -425,7 +429,10 @@ export default function SpotDetail() {
           <img src={spot.photo} alt={t('detail.photoAlt', { name: title })} loading="lazy" className="mt-4 h-44 w-full rounded-2xl object-cover" />
         )}
 
-        <p className="mt-4 text-sm text-stone-600 dark:text-stone-300">{t(`kind.${spot.kind}.note`)}</p>
+        {spot.approximate && (
+          <p className="mt-3 rounded-xl bg-amber-100 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">{t('detail.approximate')}</p>
+        )}
+        <p className="mt-4 text-sm text-stone-600 dark:text-stone-300">{t(`kind.${kindKey(spot)}.note`)}</p>
 
         {checkinKey(spot) && !removed && (
           <BusyNow

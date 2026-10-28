@@ -306,4 +306,9 @@ export default {
   'fix.thanks': "Terima kasih. Setiap butiran ikut jawapan kebanyakan orang.",
   'photo.adding': "Memuat naik…",
   'photo.thanks': "Terima kasih atas gambar.",
+  'kind.sdc.badge': "Kawasan merokok Sentosa",
+  'kind.sdc.note': "Kawasan merokok yang ditetapkan dalam senarai Sentosa sendiri. Merokok di pantai akan didenda, jadi gunakan kawasan yang ditanda.",
+  'detail.bySdc': "Disenaraikan oleh Perbadanan Pembangunan Sentosa",
+  'detail.approximate': "Lokasi anggaran: pergi ke sana dan cari papan tanda Kawasan Merokok yang Ditetapkan.",
+  'status.approx': "Lokasi anggaran",
 }
