@@ -291,4 +291,5 @@ export default {
   'crash.body': "抱歉，这个页面出现问题，已自动报告。请重新加载应用。",
   'crash.reload': "重新加载",
   'check.offlineAnswer': "没有信号。这个答案使用{when}保存的地图资料，最近的变动可能未包括在内。",
+  'near.walkMin': "步行 {n} 分钟",
 }

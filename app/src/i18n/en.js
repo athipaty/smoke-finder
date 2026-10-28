@@ -252,4 +252,5 @@ export default {
   'crash.body': "Sorry, this screen hit a problem. It has been reported. Please reload the app.",
   'crash.reload': "Reload",
   'check.offlineAnswer': "No signal. This answer uses map data saved {when}, so recent changes aren't included.",
+  'near.walkMin': "{n} min walk",
 }

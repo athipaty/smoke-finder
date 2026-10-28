@@ -291,4 +291,5 @@ export default {
   'crash.body': "Maaf, skrin ini mengalami masalah. Ia telah dilaporkan. Sila muat semula aplikasi.",
   'crash.reload': "Muat semula",
   'check.offlineAnswer': "Tiada isyarat. Jawapan ini guna data peta yang disimpan {when}, jadi perubahan terkini tidak termasuk.",
+  'near.walkMin': "{n} min berjalan",
 }

@@ -1,0 +1,37 @@
+# On every push and pull request: engine and translation tests, then an app
+# build, so a broken change shows up on GitHub before Vercel deploys it.
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+
+      - run: npm ci
+
+      - name: Engine and translation tests
+        run: npm test
+
+      - run: npm ci
+        working-directory: app
+
+      - name: Build the app
+        run: npm run build
+        working-directory: app

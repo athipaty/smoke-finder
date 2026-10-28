@@ -46,6 +46,10 @@ export const searchPlaces = (q) => postJson('/search', { q })
 // When the rules data was built and imported, and its sources.
 export const fetchMeta = () => request('/meta')
 
+// Real walking times (OneMap) to up to 5 spots: { routes: [{ minutes, metres } | null] }
+export const fetchRoutes = (from, tos) =>
+  postJson('/routes', { from: `${from.lat},${from.lng}`, to: tos.map((p) => `${p.lat},${p.lng}`) })
+
 // Map data around a point for checks without signal (offline.js)
 export const fetchArea = ({ lat, lng }) => postJson('/area', { lat, lng })
 

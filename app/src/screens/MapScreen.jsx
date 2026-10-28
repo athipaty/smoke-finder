@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Circle, CircleMarker, Tooltip } from 'react-leaflet'
 import { useGeo } from '../geo.jsx'
-import { fetchNearby } from '../api.js'
+import { fetchNearby, fetchRoutes } from '../api.js'
 import { distanceText, featureText, metresBetween, spotTitle, walkMinutes } from '../format.js'
 import { useFavourites } from '../favourites.jsx'
 import { useI18n } from '../i18n/index.jsx'
@@ -15,6 +15,19 @@ import { terminalFor } from '../../../src/changi.js'
 import { COLOURS } from '../colours.js'
 
 const MAX_FIT_M = 600 // don't zoom out for far-away spots; they're still in the list
+const ROUTED = 5 // the nearest spots get real walking times (F2), the rest an estimate
+const spotKey = (s) => `${s.lat.toFixed(6)},${s.lng.toFixed(6)}`
+
+// Real walking times replace the estimate, and the list is sorted by them.
+function withRoutes(spots, routes) {
+  if (!routes) return spots
+  return spots
+    .map((s) => {
+      const r = routes[spotKey(s)]
+      return r ? { ...s, walkMin: r.minutes, routeM: r.metres, routed: true } : s
+    })
+    .sort((a, b) => a.walkMin - b.walkMin || a.distanceM - b.distanceM)
+}
 
 function communityStatus(s, t) {
   if (s.stale) return t('status.stale')
@@ -74,6 +87,8 @@ export default function MapScreen() {
   const favourites = useFavourites()
   // offlineAt: set when showing saved results because the server couldn't be reached
   const [state, setState] = useState({ status: 'idle', nearby: null, error: null, offlineAt: null })
+  // { "lat,lng": { minutes, metres } } for the nearest spots, once OneMap answers
+  const [routes, setRoutes] = useState(null)
   // null = follow the weather; true/false = the user's own choice
   const [shelteredChoice, setShelteredChoice] = useState(() => {
     const saved = load(KEYS.shelteredOnly)
@@ -110,9 +125,32 @@ export default function MapScreen() {
     }
   }, [originKey, isPlace, geo.at]) // geo.at: "Refresh" can return the same position
 
+  // Then real walking times for the nearest few. The list shows estimates
+  // until they arrive, and keeps them if routing fails.
+  useEffect(() => {
+    setRoutes(null)
+    if (state.status !== 'done' || state.offlineAt || !originKey) return
+    const nearest = toSpots(state.nearby).slice(0, ROUTED)
+    if (!nearest.length) return
+    let cancelled = false
+    const [lat, lng] = originKey.split(',').map(Number)
+    fetchRoutes({ lat, lng }, nearest)
+      .then(({ routes: list }) => {
+        if (cancelled) return
+        const byKey = {}
+        nearest.forEach((s, i) => list[i] && (byKey[spotKey(s)] = list[i]))
+        setRoutes(byKey)
+      })
+      .catch(() => {}) // keep the estimates
+    return () => {
+      cancelled = true
+    }
+  }, [state.status, state.nearby, state.offlineAt, originKey])
+
   const weather = state.nearby?.weather
   const shelteredOnly = shelteredChoice ?? Boolean(weather?.raining)
-  const allSpots = useMemo(() => (state.nearby ? toSpots(state.nearby) : []), [state.nearby])
+  const baseSpots = useMemo(() => (state.nearby ? toSpots(state.nearby) : []), [state.nearby])
+  const allSpots = useMemo(() => withRoutes(baseSpots, routes), [baseSpots, routes])
   // In rain, hide only spots known to be uncovered. NEA areas (shelter unknown)
   // stay: in Orchard they're the only legal places at all.
   const spots = shelteredOnly ? allSpots.filter((s) => s.sheltered !== false) : allSpots
@@ -313,8 +351,8 @@ export default function MapScreen() {
                     <span className="block truncate text-sm text-stone-500 dark:text-stone-400">{subtitle(s, t)}</span>
                   </span>
                   <span className="shrink-0 text-right text-sm">
-                    <span className="block font-medium">{t('common.approxMin', { n: s.walkMin })}</span>
-                    <span className="block text-stone-500 dark:text-stone-400">{distanceText(s.distanceM)}</span>
+                    <span className="block font-medium">{s.routed ? t('near.walkMin', { n: s.walkMin }) : t('common.approxMin', { n: s.walkMin })}</span>
+                    <span className="block text-stone-500 dark:text-stone-400">{distanceText(s.routeM ?? s.distanceM)}</span>
                   </span>
                 </button>
               </li>
