@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/index.jsx'
 import MetricsView from '../components/MetricsView.jsx'
 import ReportsView from '../components/ReportsView.jsx'
 import ErrorsView from '../components/ErrorsView.jsx'
+import HelpView from '../components/HelpView.jsx'
 
 const FILTERS = [
   { id: 'review', label: 'Needs review' },
@@ -322,6 +323,7 @@ export default function Admin() {
           { id: 'reports', label: 'Reports' },
           { id: 'metrics', label: 'Metrics' },
           { id: 'errors', label: 'Errors' },
+          { id: 'help', label: 'Help' },
         ].map((v) => (
           <button
             key={v.id}
@@ -342,6 +344,8 @@ export default function Admin() {
         <ReportsView />
       ) : view === 'errors' ? (
         <ErrorsView />
+      ) : view === 'help' ? (
+        <HelpView />
       ) : (
         <>
           <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
