@@ -4,6 +4,7 @@ import { sendReport } from '../api.js'
 import { useI18n } from '../i18n/index.jsx'
 
 const KINDS = ['wrong_answer', 'spot', 'app', 'other']
+const KIND_ICONS = { wrong_answer: '🧭', spot: '📍', app: '📱', other: '💬' }
 
 // "Report a problem". From the Check screen it arrives with the answer and
 // position, so "the answer looks wrong" can say where and what was shown.
@@ -64,11 +65,14 @@ export default function Report() {
             {KINDS.map((k) => (
               <label
                 key={k}
-                className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm font-medium shadow-sm ${
+                className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium shadow-sm ${
                   kind === k ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white dark:bg-stone-900'
                 }`}
               >
                 <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
+                <span className="text-lg" aria-hidden="true">
+                  {KIND_ICONS[k]}
+                </span>
                 {t(`report.k.${k}`)}
               </label>
             ))}

@@ -331,34 +331,26 @@ export default function MapScreen() {
         )}
 
         {state.status === 'done' && (
-          <label className="mt-3 flex items-center justify-between rounded-xl bg-white px-4 py-3 text-sm shadow-sm dark:bg-stone-900">
-            <span>
-              <span className="font-medium">{t('near.shelteredOnly')}</span>
-              <span className="block text-stone-500 dark:text-stone-400">{t('near.shelteredHint')}</span>
-            </span>
-            <input type="checkbox" checked={shelteredOnly} onChange={toggleSheltered} className="h-5 w-5 accent-go" />
-          </label>
-        )}
-        {state.status === 'done' && (
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" role="group" aria-label={t('near.needs')}>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm" role="group" aria-label={t('near.needs')}>
             <span className="text-stone-500 dark:text-stone-400">{t('near.needs')}</span>
-            {NEEDS.map((n) => {
-              const on = needs.includes(n.key)
-              return (
-                <button
-                  key={n.key}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => toggleNeed(n.key)}
-                  className={`rounded-full px-3 py-1.5 font-medium ${
-                    on ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
-                  }`}
-                >
-                  {on ? '✓ ' : ''}
-                  {t(n.label)}
-                </button>
-              )
-            })}
+            {[
+              { key: 'sheltered', label: 'add.f.sheltered', icon: '☂️', on: shelteredOnly, toggle: toggleSheltered, hint: t('near.shelteredHint') },
+              ...NEEDS.map((n) => ({ ...n, icon: n.key === 'hasAshtray' ? '🗑️' : '🪑', on: needs.includes(n.key), toggle: () => toggleNeed(n.key) })),
+            ].map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                aria-pressed={chip.on}
+                title={chip.hint}
+                onClick={chip.toggle}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium ${
+                  chip.on ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-white shadow-sm dark:bg-stone-900'
+                }`}
+              >
+                <span aria-hidden="true">{chip.on ? '✓' : chip.icon}</span>
+                {t(chip.label)}
+              </button>
+            ))}
           </div>
         )}
 

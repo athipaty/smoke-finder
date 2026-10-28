@@ -87,7 +87,7 @@ export default function Check() {
           </p>
         )}
 
-        {busy && (
+        {busy && result && (
           <div className="rounded-2xl bg-white p-6 text-center shadow-sm dark:bg-stone-900" role="status">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-stone-300 border-t-go dark:border-stone-700 dark:border-t-go-dark" />
             <p className="mt-3 font-medium">{geo.status === 'locating' ? t('common.locating') : t('check.checking')}</p>
@@ -95,18 +95,62 @@ export default function Check() {
           </div>
         )}
 
-        {!busy && error && (
+        {!busy && error && result && (
           <p className="rounded-2xl bg-white p-5 text-stop shadow-sm dark:bg-stone-900 dark:text-stop-dark" role="alert">
             {error}
           </p>
         )}
-
-        {!busy && !result && !error && (
-          <p className="rounded-2xl bg-white p-5 text-stone-600 shadow-sm dark:bg-stone-900 dark:text-stone-300">{t('check.intro')}</p>
-        )}
       </div>
 
-      <div className="mt-auto space-y-3 pb-4 pt-6">
+      {/* Before the first answer: one big button in the middle of the screen. */}
+      {!result && (
+        <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
+          <button
+            type="button"
+            onClick={locate}
+            disabled={busy}
+            className="relative flex h-52 w-52 flex-col items-center justify-center rounded-full bg-go text-white shadow-xl shadow-go/30 active:scale-95 disabled:opacity-90 dark:bg-go-dark dark:text-stone-950 dark:shadow-none"
+          >
+            {/* Soft rings; still when the phone asks for less motion. */}
+            <span className="absolute inset-0 rounded-full ring-8 ring-go/15 dark:ring-go-dark/20" aria-hidden="true" />
+            <span className="absolute -inset-5 rounded-full ring-1 ring-go/20 motion-safe:animate-pulse dark:ring-go-dark/25" aria-hidden="true" />
+            {busy ? (
+              <span className="h-10 w-10 animate-spin rounded-full border-4 border-white/40 border-t-white dark:border-stone-950/30 dark:border-t-stone-950" aria-hidden="true" />
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-12 w-12" aria-hidden="true">
+                <path d="M12 21s7-6.3 7-12a7 7 0 10-14 0c0 5.7 7 12 7 12z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                <path d="M9 9.5l2 2 4-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+            <span className="mt-3 max-w-[10rem] text-lg font-semibold leading-tight">
+              {busy ? (geo.status === 'locating' ? t('common.locating') : t('check.checking')) : t('check.mine')}
+            </span>
+          </button>
+          <div className="mt-8 max-w-xs" role={busy ? 'status' : undefined}>
+            {busy && slow ? (
+              <p className="text-sm text-stone-500 dark:text-stone-400">{t('check.slow')}</p>
+            ) : error && !busy ? (
+              <p className="rounded-2xl bg-white p-4 text-sm text-stop shadow-sm dark:bg-stone-900 dark:text-stop-dark" role="alert">
+                {error}
+              </p>
+            ) : (
+              <p className="text-sm text-stone-500 dark:text-stone-400">{t('check.intro')}</p>
+            )}
+          </div>
+          <div className="mt-8 grid w-full grid-cols-2 gap-2 text-sm font-medium">
+            <Link to="/map" className="flex items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 shadow-sm active:opacity-80 dark:bg-stone-900">
+              <span aria-hidden="true">🧭</span>
+              {t('near.title')}
+            </Link>
+            <Link to="/rules" className="flex items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 shadow-sm active:opacity-80 dark:bg-stone-900">
+              <span aria-hidden="true">📋</span>
+              {t('rules.title')}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <div className={`mt-auto space-y-3 pb-4 pt-6 ${result ? '' : 'hidden'}`}>
         {result?.verdict === 'green' && !result.designatedArea && (
           <Link to="/add" className="block text-center text-sm font-medium text-[#7c3aed] underline">
             {t('check.addHere')}
