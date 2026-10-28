@@ -27,6 +27,7 @@ const data = {
     zone({ rule: 'orchard_nsz', kind: 'poly', rings: [square(5000, 0, 500)], name: 'NSZ', osm: null, nearM: 150 }), // estimated boundary
     zone({ rule: 'carpark_building', kind: 'poly', rings: [square(6000, 0, 50)], name: null, osm: 'way/6' }),
     zone({ rule: 'road', kind: 'line', path: [OX + 7000, OY - 500, OX + 7000, OY + 500], bufferM: 10, name: 'Test Ave', osm: 'way/7' }),
+    zone({ rule: 'taxi_stand', kind: 'circle', x: OX + 8000, y: OY, r: 10, name: null, osm: 'node/8' }),
   ],
   dsas: [{ id: 1, name: 'TEST MALL', description: 'Back of building', x: OX + 5250, y: OY + 250 }],
   builtAt: '2026-10-27T00:00:00Z',
@@ -52,6 +53,14 @@ test('bus stop: red within shelter radius + 5 m, amber just beyond, green furthe
   assert.equal(near.verdict, 'amber')
   assert.equal(near.reasons[0].how, 'near')
   assert.equal(check(at(1000 + 40, 0)).verdict, 'green')
+})
+
+test('taxi stand: red in the queue area, amber just beyond, green further out', () => {
+  const r = check(at(8000 + 6, 0))
+  assert.equal(r.verdict, 'red')
+  assert.equal(r.reasons[0].rule, 'taxi_stand')
+  assert.equal(check(at(8000 + 16, 0)).verdict, 'amber')
+  assert.equal(check(at(8000 + 40, 0)).verdict, 'green')
 })
 
 test('inside a park is red and names the park', () => {

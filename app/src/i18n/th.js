@@ -284,4 +284,7 @@ export default {
   'search.backToMe': "ใช้ตำแหน่งของฉัน",
   'search.title': "จุดใกล้สถานที่นี้",
   'detail.byModerator': "เพิ่มโดยทีม Smoke Finder",
+  'rule.taxi_stand.label': "จุดจอดแท็กซี่หรือพื้นที่เข้าคิว",
+  'rule.taxi_stand.reason': "ห้ามสูบบุหรี่ในพื้นที่เข้าคิวที่กำหนด เช่น จุดจอดแท็กซี่",
+  'rules.checked': "ตรวจสอบกับรายการของ NEA (อัปเดต {nea}) เมื่อ {on}",
 }

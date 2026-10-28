@@ -284,4 +284,7 @@ export default {
   'search.backToMe': "Guna lokasi saya",
   'search.title': "Tempat berhampiran lokasi ini",
   'detail.byModerator': "Ditambah oleh pasukan Smoke Finder",
+  'rule.taxi_stand.label': "Perhentian teksi atau kawasan beratur",
+  'rule.taxi_stand.reason': "Merokok dilarang di kawasan beratur yang ditetapkan, seperti perhentian teksi.",
+  'rules.checked': "Disemak dengan senarai NEA (dikemas kini {nea}) pada {on}.",
 }

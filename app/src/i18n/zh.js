@@ -284,4 +284,7 @@ export default {
   'search.backToMe': "用我的位置",
   'search.title': "这个地点附近的地方",
   'detail.byModerator': "由 Smoke Finder 团队添加",
+  'rule.taxi_stand.label': "德士站或排队区",
+  'rule.taxi_stand.reason': "指定排队区（例如德士站）禁止吸烟。",
+  'rules.checked': "已于 {on} 对照 NEA 的清单（更新于 {nea}）核对。",
 }

@@ -245,4 +245,7 @@ export default {
   'search.backToMe': "Use my location",
   'search.title': "Spots near this place",
   'detail.byModerator': "Added by the Smoke Finder team",
+  'rule.taxi_stand.label': "Taxi stand or queue area",
+  'rule.taxi_stand.reason': "Smoking is banned in designated queue areas, such as taxi stands.",
+  'rules.checked': "Checked against NEA’s list (updated {nea}) on {on}.",
 }

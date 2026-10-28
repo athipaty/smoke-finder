@@ -14,6 +14,10 @@
 //   bufferFor     per-element buffer from its OSM tags, stored on the zone as `bufferM`
 
 export const NEA_SOURCE = 'https://www.nea.gov.sg/our-services/smoking-prohibition/overview'
+// When these rules were last compared with NEA's list, and the "Last updated"
+// date NEA's page showed then. The backend alerts the moderator when NEA's date
+// changes (jobs/smokeDigest.js), meaning it's time to compare again.
+export const RULES_CHECKED = { on: '2026-10-28', neaPageUpdated: '2026-08-20' }
 export const FINE_NOTE = 'Fines up to $1,000'
 export const DISCLAIMER = 'Guidance only. Follow signs on site and NEA rules.'
 
@@ -34,6 +38,14 @@ export const RULES = [
     reason: 'Smoking is banned in bus interchanges and terminals, including shops in the compound.',
     inside: 'red', bufferM: 0, pointRadiusM: 40,
     query: ['nwr["amenity"="bus_station"]'],
+  },
+  {
+    // NEA: "designated queue areas". OSM has LTA's taxi stands as points.
+    id: 'taxi_stand',
+    label: 'Taxi stand or queue area',
+    reason: 'Smoking is banned in designated queue areas, such as taxi stands.',
+    inside: 'red', bufferM: 0, pointRadiusM: 10,
+    query: ['nwr["amenity"="taxi"]'],
   },
   {
     id: 'education',

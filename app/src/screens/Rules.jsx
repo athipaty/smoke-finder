@@ -1,4 +1,4 @@
-import { RULES, NEA_SOURCE } from '../../../src/rules.js'
+import { RULES, NEA_SOURCE, RULES_CHECKED } from '../../../src/rules.js'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchMeta } from '../api.js'
@@ -89,7 +89,9 @@ function RuleList({ rules }) {
 }
 
 export default function Rules() {
-  const { t, ruleLabel, ruleReason } = useI18n()
+  const { t, lang, ruleLabel, ruleReason } = useI18n()
+  const day = (iso) =>
+    new Date(`${iso}T12:00:00+08:00`).toLocaleDateString(lang === 'th' ? 'th-TH' : `${lang}-SG`, { day: 'numeric', month: 'short', year: 'numeric' })
   return (
     <main className="px-4 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))]">
       <h1 className="text-2xl font-bold">{t('rules.title')}</h1>
@@ -133,7 +135,7 @@ export default function Rules() {
         <a href={NEA_SOURCE} target="_blank" rel="noopener noreferrer" className="underline">
           {t('rules.sourceLink')}
         </a>
-        . {t('rules.owners')}
+        . {t('rules.owners')} {t('rules.checked', { on: day(RULES_CHECKED.on), nea: day(RULES_CHECKED.neaPageUpdated) })}
       </p>
       <p className="mt-3 text-xs text-stone-500 dark:text-stone-400">
         {t('rules.privacy')}{' '}
