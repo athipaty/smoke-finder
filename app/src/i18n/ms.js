@@ -315,4 +315,7 @@ export default {
   'park.hasDsas': "{park} ada kawasan merokok yang ditetapkan, biasanya berhampiran tempat letak kereta. Cari papan tandanya.",
   'park.listIntro': "Taman-taman ini ada kawasan merokok yang ditetapkan, biasanya berhampiran tempat letak kereta (NParks):",
   'rules.guide': "Panduan merokok Singapura (halaman web untuk dikongsi)",
+  'kind.ntu.badge': "Kawasan merokok NTU",
+  'kind.ntu.note': "Kawasan merokok yang ditetapkan dalam senarai NTU sendiri (setakat 15 Okt 2025). Bahagian lain kampus bebas asap rokok, dengan denda kampus dari $200.",
+  'detail.byNtu': "Disenaraikan oleh NTU (Universiti Teknologi Nanyang)",
 }

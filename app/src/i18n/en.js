@@ -276,4 +276,7 @@ export default {
   'park.hasDsas': "{park} has designated smoking areas, usually near the carparks. Look for the signs.",
   'park.listIntro': "These parks have designated smoking areas, usually near the carparks (NParks):",
   'rules.guide': "Singapore smoking guide (web pages to share)",
+  'kind.ntu.badge': "NTU smoking area",
+  'kind.ntu.note': "A designated smoking area on NTU's own list (as of 15 Oct 2025). The rest of the campus is smoke-free, with campus fines from $200.",
+  'detail.byNtu': "Listed by NTU (Nanyang Technological University)",
 }

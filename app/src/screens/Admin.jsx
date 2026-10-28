@@ -191,6 +191,7 @@ function SpotCard({ spot, onChange, onRemoved }) {
             <Pill className={STATUS_PILL[spot.status]}>{spot.status}</Pill>
             {spot.addedByModerator && <Pill className="bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100">moderator</Pill>}
             {spot.source === 'sdc' && <Pill className="bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100">Sentosa list</Pill>}
+            {spot.source === 'ntu' && <Pill className="bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-100">NTU list</Pill>}
             {spot.approximate && <Pill className="bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100">approximate</Pill>}
           </div>
           <p className="mt-1.5 font-semibold">{spot.name ?? 'Unnamed spot'}</p>

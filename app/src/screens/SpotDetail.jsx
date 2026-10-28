@@ -35,13 +35,16 @@ async function spotFromLink(params) {
   return null
 }
 
-// Sentosa's own smoking areas are stored as community spots with source "sdc".
-const kindKey = (s) => (s.source === 'sdc' ? 'sdc' : s.kind)
+// Operators' own smoking areas (Sentosa "sdc", NTU "ntu") are stored as
+// community spots with their source; they get their own badge and note.
+const OPERATOR_SOURCES = ['sdc', 'ntu']
+const kindKey = (s) => (OPERATOR_SOURCES.includes(s.source) ? s.source : s.kind)
 
 function statusText(s, t) {
   const confirmed = t('detail.lastConfirmed', { when: sinceText(s.lastConfirmedAt, t) })
   if (s.stale) return `${confirmed} · ${t('detail.mayBeOld')}`
   if (s.source === 'sdc') return t('detail.bySdc')
+  if (s.source === 'ntu') return t('detail.byNtu')
   if (s.byModerator) return `${t('detail.byModerator')} · ${confirmed}`
   if (s.status === 'verified') return `${t('detail.verifiedBy', { n: s.hereCount })} · ${confirmed}`
   return `${t('detail.unverifiedBy', { n: s.hereCount })} · ${confirmed}`
